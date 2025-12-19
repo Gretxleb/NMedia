@@ -1,0 +1,4 @@
+- name: Имя шага
+  uses: actions/checkout@v3 # или actions/upload-artifact@v4
+  with:
+    # набор опций, специфичный для конкретного Action
