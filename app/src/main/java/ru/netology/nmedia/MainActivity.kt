@@ -1,47 +1,64 @@
 package ru.netology.nmedia
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import ru.netology.nmedia.ui.theme.NMediaTheme
+import androidx.appcompat.app.AppCompatActivity
+import ru.netology.nmedia.databinding.ActivityMainBinding
+import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.util.formatCount
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            NMediaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        var post = Post(
+            id = 1,
+            author = "Иван Иванов",
+            content = "Это пример текста поста. Нажмите на лайк или репост!",
+            published = "15 мая в 18:30",
+            likes = 999,
+            shares = 995
+        )
+
+        fun render(post: Post) {
+            binding.authorName.text = post.author
+            binding.postText.text = post.content
+            binding.postDate.text = post.published
+            
+            binding.likeButton.setImageResource(
+                if (post.likedByMe) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off
+            )
+            
+            binding.likeCount.text = formatCount(post.likes)
+            binding.commentCount.text = formatCount(post.shares)
         }
-    }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "NMedia!",
-        modifier = modifier
-    )
-}
+        render(post)
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NMediaTheme {
-        Greeting("Android")
+        binding.likeButton.setOnClickListener {
+            post = post.copy(
+                likedByMe = !post.likedByMe,
+                likes = if (post.likedByMe) post.likes - 1 else post.likes + 1
+            )
+            render(post)
+        }
+
+        binding.shareButton.setOnClickListener {
+            post = post.copy(shares = post.shares + 1)
+            render(post)
+        }
+
+        binding.root.setOnClickListener {
+            println("Click: Root")
+        }
+
+        binding.postImage.setOnClickListener {
+            println("Click: Avatar/Image")
+        }
+
+        binding.postText.setOnClickListener {
+            println("Click: Text")
+        }
     }
 }
