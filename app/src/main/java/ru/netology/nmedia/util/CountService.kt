@@ -1,19 +1,20 @@
 package ru.netology.nmedia.util
 
+import java.util.Locale
+
 fun formatCount(count: Int): String {
     return when {
         count < 1000 -> count.toString()
-        count < 1100 -> "1K"
         count < 10000 -> {
-            val thousands = count / 1000
-            val hundreds = (count % 1000) / 100
-            if (hundreds == 0) "${thousands}K" else "${thousands}.${hundreds}K"
+            val value = count / 1000.0
+            if (count % 1000 < 100) "${value.toInt()}K" 
+            else String.format(Locale.US, "%.1fK", value)
         }
         count < 1000000 -> "${count / 1000}K"
         else -> {
-            val millions = count / 1000000
-            val thousands = (count % 1000000) / 100000
-            if (thousands == 0) "${millions}M" else "${millions}.${thousands}M"
+            val value = count / 1000000.0
+            if (count % 1000000 < 100000) "${value.toInt()}M" 
+            else String.format(Locale.US, "%.1fM", value)
         }
     }
 }
