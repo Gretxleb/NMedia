@@ -1,12 +1,11 @@
 plugins {
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin)
 }
 
 android {
     namespace = "ru.netology.nmedia"
-    
-    compileSdk = 34   // или 35, если уже доступно в 2026
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "ru.netology.nmedia"
@@ -14,7 +13,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -37,20 +36,18 @@ android {
         jvmTarget = "1.8"
     }
 
-    // Вот здесь — самое важное место!
     buildFeatures {
-        viewBinding = true   // ← современный и правильный способ
+        viewBinding = true
     }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core-ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
-    
+    implementation(libs.androidx.activity)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    // … другие зависимости, если есть
 }
