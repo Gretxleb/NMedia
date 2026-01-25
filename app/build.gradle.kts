@@ -50,4 +50,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> e7a835c970cb4459bd13e4ee89be71ea01a378a1

@@ -22,4 +22,8 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+<<<<<<< HEAD
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+=======
+kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+>>>>>>> e7a835c970cb4459bd13e4ee89be71ea01a378a1
