@@ -1,42 +1,53 @@
 package ru.netology.nmedia.activity
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.ActivityMainBinding
-import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.viewmodel.PostViewModel
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val post = Post(
-            id = 1,
-            author = "Нетология. Университет интернет-профессий будущего",
-            content = "Привет! Это новая Нетология. Когда-то Нетология начиналась с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, разработке, аналитике и управлению. Мы растём сами и помогаем расти студентам: от новичков до уверенных профессионалов. Но самое важное остаётся с нами: мы верим, что в каждом есть потенциал, который можно развить.",
-            published = "21 мая в 18:36",
-            likedByMe = false,
-            likes = 999, // Было likesCount
-            shares = 995 // Было shareCount
-        )
+        val viewModel: PostViewModel by viewModels()
 
-        with(binding) {
-            author.text = post.author
-            published.text = post.published
-            content.text = post.content
-            
-            // Обращение к полям также исправлено на likes и shares
-            likesText.text = post.likes.toString()
-            shareText.text = post.shares.toString()
+        viewModel.data.observe(this) { post ->
+            with(binding) {
+                author.text = post.author
+                published.text = post.published
+                content.text = post.content
+                
+                likesText.text = formatCount(post.likes)
+                shareText.text = formatCount(post.shares)
 
-            if (post.likedByMe) {
-                likes.setImageResource(ru.netology.nmedia.R.drawable.ic_liked_24)
+                like.setImageResource(
+                    if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_like_24
+                )
             }
+        }
 
-            likes.setOnClickListener {
-                // Здесь логика изменения будет в следующих ДЗ, пока просто выводим данные
-            }
+        binding.like.setOnClickListener {
+            viewModel.like()
+        }
+
+        binding.share.setOnClickListener {
+            viewModel.share()
+        }
+    }
+
+    private fun formatCount(count: Int): String {
+        return when {
+            count >= 1_000_000 -> String.format("%.1fM", count / 1_000_000.0)
+            count >= 10_000 -> "${count / 1_000}K"
+            count >= 1_100 -> String.format("%.1fK", count / 1_000.0)
+            count >= 1_000 -> "1K"
+            else -> count.toString()
         }
     }
 }
