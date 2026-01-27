@@ -1,5 +1,4 @@
-// Top-level build file
 plugins {
-    alias(libs.plugins.android.application) apply true
-    alias(libs.plugins.kotlin) apply true
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
 }
