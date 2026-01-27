@@ -2,6 +2,7 @@ package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,13 +11,8 @@ import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
-    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
-        return oldItem.id == newItem.id
-    }
-
-    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
-        return oldItem == newItem
-    }
+    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean = oldItem.id == newItem.id
+    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean = oldItem == newItem
 }
 
 class PostAdapter(
@@ -44,19 +40,31 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            like.setImageResource(
-                if (post.likedByMe) R.drawable.ic_liked else R.drawable.ic_like
-            )
+            like.setImageResource(if (post.likedByMe) R.drawable.ic_liked else R.drawable.ic_like)
             likeCount.text = post.likes.toString()
             shareCount.text = post.shares.toString()
 
-            like.setOnClickListener {
-                onInteractionListener.onLike(post)
+            menu.setOnClickListener {
+                PopupMenu(it.context, it).apply {
+                    inflate(R.menu.options_post)
+                    setOnMenuItemClickListener { item ->
+                        when (item.itemId) {
+                            R.id.remove -> {
+                                onInteractionListener.onRemove(post)
+                                true
+                            }
+                            R.id.edit -> {
+                                onInteractionListener.onEdit(post)
+                                true
+                            }
+                            else -> false
+                        }
+                    }
+                }.show()
             }
 
-            share.setOnClickListener {
-                onInteractionListener.onShare(post)
-            }
+            like.setOnClickListener { onInteractionListener.onLike(post) }
+            share.setOnClickListener { onInteractionListener.onShare(post) }
         }
     }
 }
