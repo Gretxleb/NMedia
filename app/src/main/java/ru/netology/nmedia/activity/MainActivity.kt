@@ -1,6 +1,7 @@
 package ru.netology.nmedia.activity
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -22,15 +23,12 @@ class MainActivity : AppCompatActivity() {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
             }
-
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
             }
-
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
             }
-
             override fun onShare(post: Post) {
                 viewModel.shareById(post.id)
             }
@@ -42,9 +40,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.edited.observe(this) { post ->
-            if (post.id == 0L) {
-                return@observe
-            }
+            if (post.id == 0L) return@observe
+            binding.group.visibility = View.VISIBLE
             with(binding.content) {
                 requestFocus()
                 setText(post.content)
@@ -57,13 +54,12 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this@MainActivity, "Content can't be empty", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-
                 viewModel.changeContent(text.toString())
                 viewModel.save()
-
                 setText("")
                 clearFocus()
                 AndroidUtils.hideKeyboard(this)
+                binding.group.visibility = View.GONE
             }
         }
     }
