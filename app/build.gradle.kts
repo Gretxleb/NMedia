@@ -29,4 +29,6 @@ dependencies {
     implementation(libs.androidx-activity-ktx)
     implementation(libs.androidx-navigation-fragment-ktx)
     implementation(libs.androidx-navigation-ui-ktx)
+implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
+implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
 }
