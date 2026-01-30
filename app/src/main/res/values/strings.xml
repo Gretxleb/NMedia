@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">NMedia</string>
-    <string name="content_text">NMedia!</string>
+    <string name="post_text">Post Content</string>
+    <string name="description_post_save">Save</string>
 </resources>
