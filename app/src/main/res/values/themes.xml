@@ -1,15 +1,11 @@
 <resources>
-    <style name="Theme.NMedia" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/purple_500</item>
-        </style>
-
-    <style name="Widget.AppTheme.LikeCheckBox" parent="Widget.Material3.Button.TextButton.Icon">
-        <item name="android:checkable">true</item>
-        <item name="icon">@drawable/ic_like_24</item> <item name="iconTint">@color/like_button_tint</item>
+    <style name="Widget.AppTheme.LikeButton" parent="Widget.MaterialComponents.Button.TextButton.Checkable">
+        <item name="android:textColor">@color/purple_500</item>
+        <item name="iconTint">@color/purple_500</item>
     </style>
 
-    <style name="Widget.AppTheme.OutlinedButton" parent="Widget.Material3.Button.TextButton.Icon">
-        <item name="android:paddingStart">8dp</item>
-        <item name="android:paddingEnd">8dp</item>
+    <style name="Widget.AppTheme.ShareButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/purple_500</item>
+        <item name="iconTint">@color/purple_500</item>
     </style>
 </resources>
