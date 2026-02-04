@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">NMedia</string>
-    <string name="description_post_save">Save post</string>
-    <string name="description_post_menu">Post menu</string>
-    <string name="edit_post">Edit post</string>
-    <string name="remove_post">Remove post</string>
-    <string name="post_placeholder">Write your post...</string>
-    <string name="save">Save</string>
-    <string name="cancel">Cancel</string>
+    <string name="post_author">Netology</string>
+    <string name="post_published">24 мая в 21:11</string>
+    <string name="post_content">Hello World</string>
 </resources>
