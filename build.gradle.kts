@@ -1,22 +1,5 @@
-buildscript {
-    ext.kotlin_version = "1.9.0"
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:8.2.1"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+plugins {
+    id("com.android.application") version "8.2.1" apply false
+    id("com.android.library")    version "8.2.1" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.0" apply false
 }
