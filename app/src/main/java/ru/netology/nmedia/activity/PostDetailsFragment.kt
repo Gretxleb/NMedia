@@ -11,6 +11,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.databinding.FragmentPostDetailsBinding
 import ru.netology.nmedia.util.LongArg
+import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.dto.Post
 
@@ -18,6 +19,7 @@ class PostDetailsFragment : Fragment() {
 
     companion object {
         var Bundle.idArg: Long by LongArg
+        var Bundle.textArg: String? by StringArg
     }
 
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
@@ -28,7 +30,6 @@ class PostDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentPostDetailsBinding.inflate(inflater, container, false)
-
         val postId = arguments?.idArg ?: -1L
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
@@ -37,7 +38,7 @@ class PostDetailsFragment : Fragment() {
                 return@observe
             }
 
-            val viewHolder = PostViewHolder(binding.post_layout, object : ru.netology.nmedia.adapter.OnInteractionListener {
+            val viewHolder = PostViewHolder(binding.postLayout, object : ru.netology.nmedia.adapter.OnInteractionListener {
                 override fun onLike(post: Post) {
                     viewModel.likeById(post.id)
                 }
@@ -55,13 +56,10 @@ class PostDetailsFragment : Fragment() {
                     viewModel.edit(post)
                     findNavController().navigate(
                         R.id.action_postDetailsFragment_to_newPostFragment,
-                        Bundle().apply {
-                            textArg = post.content
-                        }
+                        Bundle().apply { textArg = post.content }
                     )
                 }
             })
-
             viewHolder.bind(post)
         }
 
