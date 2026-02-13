@@ -59,8 +59,8 @@ class FeedFragment : Fragment() {
         })
 
         binding.list.adapter = adapter
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
+            adapter.submitList(posts)
         }
 
         binding.fab.setOnClickListener {

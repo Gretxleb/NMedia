@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.databinding.PostItemBinding
+import ru.netology.nmedia.dto.Post
 
 class PostAdapter : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
     

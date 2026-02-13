@@ -2,7 +2,6 @@ package ru.netology.nmedia.util
 
 import android.os.Bundle
 import kotlin.properties.ReadWriteProperty
-import kinship.reflect.KProperty
 import kotlin.reflect.KProperty
 
 object StringArg : ReadWriteProperty<Bundle, String?> {
