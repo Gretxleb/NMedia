@@ -19,7 +19,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = PostRepositoryRoomImpl(
         AppDb.getInstance(application).postDao()
     )
-
     val data = repository.getAll()
     val edited = MutableLiveData(empty)
 
@@ -38,9 +37,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun save() {
-        edited.value?.let {
-            repository.save(it)
-        }
+        edited.value?.let { repository.save(it) }
         edited.value = empty
     }
 

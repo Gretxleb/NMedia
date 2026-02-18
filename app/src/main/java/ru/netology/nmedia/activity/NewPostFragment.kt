@@ -4,46 +4,48 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
-import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class NewPostFragment : Fragment() {
+    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private var _binding: FragmentNewPostBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentNewPostBinding.inflate(inflater, container, false)
-        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        _binding = FragmentNewPostBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        val draft = viewModel.getDraft()
-        if (!draft.isNullOrBlank() && viewModel.edited.value?.id == 0L) {
-            binding.edit.setText(draft)
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            val content = binding.edit.text.toString()
-            if (viewModel.edited.value?.id == 0L) {
-                viewModel.saveDraft(content)
+        viewModel.edited.observe(viewLifecycleOwner) { post ->
+            if (post.id != 0L) {
+                binding.edit.setText(post.content)
             }
-            findNavController().navigateUp()
         }
 
-        binding.ok.setOnClickListener {
-            val content = binding.edit.text.toString()
-            if (content.isNotBlank()) {
-                viewModel.changeContent(content)
+        binding.save.setOnClickListener {
+            val text = binding.edit.text.toString()
+            if (text.isNotBlank()) {
+                viewModel.changeContent(text)
                 viewModel.save()
             }
-            AndroidUtils.hideKeyboard(requireView())
-            findNavController().navigateUp()
+            findNavController().navigate(R.id.action_newPostFragment_to_feedFragment)
         }
-        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

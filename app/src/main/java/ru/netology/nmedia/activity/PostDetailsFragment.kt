@@ -8,61 +8,45 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
-import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.databinding.FragmentPostDetailsBinding
-import ru.netology.nmedia.util.LongArg
-import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
-import ru.netology.nmedia.dto.Post
 
 class PostDetailsFragment : Fragment() {
-
-    companion object {
-        var Bundle.idArg: Long by LongArg
-        var Bundle.textArg: String? by StringArg
-    }
-
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private var _binding: FragmentPostDetailsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentPostDetailsBinding.inflate(inflater, container, false)
-        val postId = arguments?.idArg ?: -1L
+        _binding = FragmentPostDetailsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val postId = arguments?.getLong("postId") ?: return
 
         viewModel.data.observe(viewLifecycleOwner) { posts ->
-            val post = posts.find { it.id == postId } ?: run {
-                findNavController().navigateUp()
-                return@observe
-            }
-
-            val viewHolder = PostViewHolder(binding.postLayout, object : ru.netology.nmedia.adapter.OnInteractionListener {
-                override fun onLike(post: Post) {
-                    viewModel.likeById(post.id)
-                }
-
-                override fun onShare(post: Post) {
-                    viewModel.shareById(post.id)
-                }
-
-                override fun onRemove(post: Post) {
-                    viewModel.removeById(post.id)
-                    findNavController().navigateUp()
-                }
-
-                override fun onEdit(post: Post) {
-                    viewModel.edit(post)
-                    findNavController().navigate(
-                        R.id.action_postDetailsFragment_to_newPostFragment,
-                        Bundle().apply { textArg = post.content }
-                    )
-                }
-            })
-            viewHolder.bind(post)
+            val post = posts.find { it.id == postId } ?: return@observe
+            binding.author.text = post.author
+            binding.content.text = post.content
+            binding.published.text = post.published
         }
 
-        return binding.root
+        binding.edit.setOnClickListener {
+            viewModel.data.value?.find { it.id == postId }?.let {
+                viewModel.edit(it)
+                findNavController().navigate(R.id.action_newPostFragment_to_feedFragment)
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
