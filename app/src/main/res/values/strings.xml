@@ -1,15 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NMedia</string>
-    <string name="post_placeholder">Enter post text...</string>
-    <string name="post_text">Post text</string>
-    <string name="description_post_save">Save post</string>
-    <string name="edit_post">Edit</string>
-    <string name="remove_post">Delete</string>
-    <string name="like">Like</string>
-    <string name="share">Share</string>
-    <string name="save">Save</string>
-    <string name="new_post">New post</string>
-    <string name="chooser_share_post">Share post via</string>
-    <string name="content_text">Content</string>
+    <string name="channel_remote_name">Remote notifications</string>
+    <string name="channel_remote_description">Notifications about remote changes</string>
+    <string name="notification_user_liked">%1$s liked %2$s\'s post</string>
+    <string name="notification_user_published_post">%1$s опубликовал новый пост:</string>
+    <string name="description_post_share">Share</string>
 </resources>
