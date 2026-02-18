@@ -17,8 +17,7 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
-
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: PostViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,34 +27,52 @@ class FeedFragment : Fragment() {
         val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
         val adapter = PostsAdapter(object : OnInteractionListener {
-            override fun onEdit(post: Post) {
-                viewModel.edit(post)
-            }
-
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
+            }
+
+            override fun onShare(post: Post) {
+                val intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, post.content)
+                    type = "text/plain"
+                }
+                val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                startActivity(shareIntent)
+                viewModel.shareById(post.id)
             }
 
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
             }
 
-            override fun onShare(post: Post) {
-                viewModel.shareById(post.id)
+            override fun onEdit(post: Post) {
+                viewModel.edit(post)
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
             }
 
             override fun onVideo(post: Post) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                val videoUrl = post.video ?: return
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl))
                 startActivity(intent)
             }
         })
 
         binding.list.adapter = adapter
+
         viewModel.data.observe(viewLifecycleOwner) { posts ->
             adapter.submitList(posts)
         }
 
         binding.fab.setOnClickListener {
+            viewModel.edit(
+                ru.netology.nmedia.dto.Post(
+                    id = 0,
+                    author = "",
+                    content = "",
+                    published = "",
+                )
+            )
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
