@@ -1,10 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NMedia</string>
-    <string name="content_text">Текст поста</string>
-    <string name="post_share">Поделиться</string>
-    <string name="post_likes">Лайки</string>
-    <string name="post_views">Просмотры</string>
-    <string name="save">Сохранить</string>
-    <string name="edit_post">Редактировать</string>
-    <string name="remove_post">Удалить</string>
+    <string name="post_placeholder">Enter post text...</string>
+    <string name="post_text">Post text</string>
+    <string name="description_post_save">Save post</string>
+    <string name="edit_post">Edit</string>
+    <string name="remove_post">Delete</string>
+    <string name="like">Like</string>
+    <string name="share">Share</string>
+    <string name="save">Save</string>
+    <string name="new_post">New post</string>
+    <string name="chooser_share_post">Share post via</string>
+    <string name="content_text">Content</string>
 </resources>
