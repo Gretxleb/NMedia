@@ -1,6 +1,7 @@
 package ru.netology.nmedia.activity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,60 +17,48 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
+
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
-    private var _binding: FragmentFeedBinding? = null
-    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFeedBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
-                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
-            }
-
-            override fun onRemove(post: Post) {
-                viewModel.removeById(post.id)
             }
 
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
             }
 
-            override fun onShare(post: Post) {
-                val intent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, post.content)
-                    type = "text/plain"
-                }
-                val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
-                startActivity(shareIntent)
+            override fun onRemove(post: Post) {
+                viewModel.removeById(post.id)
             }
 
-            override fun onVideo(post: Post) {}
+            override fun onShare(post: Post) {
+                viewModel.shareById(post.id)
+            }
+
+            override fun onVideo(post: Post) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                startActivity(intent)
+            }
         })
 
         binding.list.adapter = adapter
-
-        viewModel.data.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
+            adapter.submitList(posts)
         }
 
-        binding.save.setOnClickListener {
+        binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
-    }
 
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
+        return binding.root
     }
 }

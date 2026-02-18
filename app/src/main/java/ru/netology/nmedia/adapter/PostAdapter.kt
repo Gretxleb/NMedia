@@ -12,6 +12,7 @@ interface OnInteractionListener {
     fun onRemove(post: Post)
     fun onLike(post: Post)
     fun onShare(post: Post)
+    fun onVideo(post: Post)
 }
 
 class PostsAdapter(
