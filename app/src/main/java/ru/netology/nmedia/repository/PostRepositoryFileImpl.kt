@@ -7,17 +7,14 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import ru.netology.nmedia.dto.Post
 
-class PostRepositoryFileImpl(
-    private val context: Context,
-) : PostRepository {
+class PostRepositoryFileImpl(private val context: Context) : PostRepository {
     private val gson = Gson()
-    private val filename = "posts.json"
     private val type = TypeToken.getParameterized(List::class.java, Post::class.java).type
+    private val filename = "posts.json"
     private var posts = emptyList<Post>()
     private val data = MutableLiveData(posts)
 
     init {
-        // Читаем данные из файла при инициализации
         val file = context.filesDir.resolve(filename)
         if (file.exists()) {
             context.openFileInput(filename).bufferedReader().use {
@@ -25,58 +22,51 @@ class PostRepositoryFileImpl(
                 data.value = posts
             }
         } else {
-            // Если файла нет, сохраняем пустой список
-            sync()
+            save()
         }
     }
 
     override fun getAll(): LiveData<List<Post>> = data
 
-    override fun save(post: Post) {
-        if (post.id == 0L) {
-            posts = listOf(
-                post.copy(
-                    id = posts.firstOrNull()?.id?.plus(1) ?: 1L,
-                    author = "Me",
-                    published = "Now"
-                )
-            ) + posts
-        } else {
-            posts = posts.map {
-                if (it.id != post.id) it else it.copy(content = post.content)
-            }
-        }
-        data.value = posts
-        sync()
-    }
-
     override fun likeById(id: Long) {
-        posts = posts.map {
-            if (it.id != id) it else it.copy(
-                likedByMe = !it.likedByMe,
-                likes = if (it.likedByMe) it.likes - 1 else it.likes + 1
+        posts = posts.map { post ->
+            if (post.id != id) post
+            else post.copy(
+                likedByMe = !post.likedByMe,
+                likes = if (post.likedByMe) post.likes - 1 else post.likes + 1
             )
         }
         data.value = posts
-        sync()
+        save()
     }
 
     override fun shareById(id: Long) {
-        posts = posts.map {
-            if (it.id != id) it else it.copy(shares = it.shares + 1)
+        posts = posts.map { post ->
+            if (post.id != id) post else post.copy(shares = post.shares + 1)
         }
         data.value = posts
-        sync()
+        save()
     }
 
     override fun removeById(id: Long) {
         posts = posts.filter { it.id != id }
         data.value = posts
-        sync()
+        save()
     }
 
-    // Вспомогательная функция для записи данных в файл
-    private fun sync() {
+    override fun save(post: Post) {
+        posts = if (post.id == 0L) {
+            listOf(post.copy(id = nextId())) + posts
+        } else {
+            posts.map { if (it.id == post.id) post else it }
+        }
+        data.value = posts
+        save()
+    }
+
+    private fun nextId(): Long = (posts.maxOfOrNull { it.id } ?: 0L) + 1L
+
+    private fun save() {
         context.openFileOutput(filename, Context.MODE_PRIVATE).bufferedWriter().use {
             it.write(gson.toJson(posts))
         }
