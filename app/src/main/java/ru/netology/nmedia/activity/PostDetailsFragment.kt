@@ -18,7 +18,6 @@ class PostDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentPostDetailsBinding.inflate(inflater, container, false)
-
         val postId = arguments?.getLong("postId") ?: return binding.root
 
         viewModel.data.observe(viewLifecycleOwner) { posts ->
