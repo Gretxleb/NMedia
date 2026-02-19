@@ -7,12 +7,13 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 
 class PostRepositoryRoomImpl(private val dao: PostDao) : PostRepository {
-    override val data: LiveData<List<Post>> = dao.getAll().map { list ->
+
+    fun getAll(): LiveData<List<Post>> = dao.getAll().map { list ->
         list.map { it.toDto() }
     }
 
     override fun likeById(id: Long) {
-        val post = data.value?.find { it.id == id } ?: return
+        val post = getAll().value?.find { it.id == id } ?: return
         if (post.likedByMe) {
             dao.unlikeById(id)
         } else {

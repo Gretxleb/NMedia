@@ -10,10 +10,10 @@ import ru.netology.nmedia.repository.PostRepositoryRoomImpl
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = PostRepositoryRoomImpl(
-        AppDb.getInstance(application).postDao()
+        AppDb.getInstance(application).postDao
     )
 
-    val data: LiveData<List<Post>> = repository.data
+    val data: LiveData<List<Post>> = repository.getAll()
     val edited = MutableLiveData(empty)
 
     companion object {
