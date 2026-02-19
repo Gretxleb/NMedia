@@ -66,7 +66,7 @@ class FeedFragment : Fragment() {
 
         binding.fab.setOnClickListener {
             viewModel.edit(
-                ru.netology.nmedia.dto.Post(
+                Post(
                     id = 0,
                     author = "",
                     content = "",
