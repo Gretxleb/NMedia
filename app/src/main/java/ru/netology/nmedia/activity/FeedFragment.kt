@@ -1,7 +1,6 @@
 package ru.netology.nmedia.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,7 +38,6 @@ class FeedFragment : Fragment() {
                 }
                 val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
-                viewModel.shareById(post.id)
             }
 
             override fun onRemove(post: Post) {
@@ -52,9 +50,6 @@ class FeedFragment : Fragment() {
             }
 
             override fun onVideo(post: Post) {
-                val videoUrl = post.video ?: return
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl))
-                startActivity(intent)
             }
         })
 
@@ -71,6 +66,7 @@ class FeedFragment : Fragment() {
                     author = "",
                     content = "",
                     published = "",
+                    likedByMe = false,
                 )
             )
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
