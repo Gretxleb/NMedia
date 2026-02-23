@@ -1,6 +1,11 @@
 package ru.netology.nmedia
 
-// This file was incorrectly placed in src/main and caused kapt errors.
-// Contents moved to src/test or removed.
-class ExampleUnitTestMain {
+import org.junit.Test
+import org.junit.Assert.*
+
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
+    }
 }
