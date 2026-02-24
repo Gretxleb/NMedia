@@ -12,7 +12,9 @@ import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class NewPostFragment : Fragment() {
-    private val viewModel: PostViewModel by viewModels()
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,

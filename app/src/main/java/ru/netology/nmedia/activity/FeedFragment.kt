@@ -16,7 +16,9 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
-    private val viewModel: PostViewModel by viewModels()
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,6 +52,15 @@ class FeedFragment : Fragment() {
             }
 
             override fun onVideo(post: Post) {
+            }
+
+            override fun onPostDetails(post: Post) {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_postDetailsFragment,
+                    Bundle().apply {
+                        putLong("postId", post.id)
+                    }
+                )
             }
         })
 

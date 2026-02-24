@@ -13,6 +13,7 @@ interface OnInteractionListener {
     fun onRemove(post: Post)
     fun onEdit(post: Post)
     fun onVideo(post: Post)
+    fun onPostDetails(post: Post)
 }
 
 class PostsAdapter(

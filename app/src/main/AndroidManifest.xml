@@ -12,7 +12,7 @@
         android:theme="@style/Theme.NMedia">
 
         <activity
-            android:name=".activity.AppActivity"
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -26,6 +26,10 @@ class PostViewHolder(
             menu.setOnClickListener {
                 onInteractionListener.onRemove(post)
             }
+
+            root.setOnClickListener {
+                onInteractionListener.onPostDetails(post)
+            }
         }
     }
 }
