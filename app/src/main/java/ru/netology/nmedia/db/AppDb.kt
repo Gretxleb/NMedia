@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import ru.netology.nmedia.dao.PostDao
-import ru.netology.nmedia.entity.PostEntity
 
 @Database(entities = [PostEntity::class], version = 1)
 abstract class AppDb : RoomDatabase() {
@@ -21,10 +19,7 @@ abstract class AppDb : RoomDatabase() {
                     context.applicationContext,
                     AppDb::class.java,
                     "app.db"
-                )
-                    .allowMainThreadQueries()
-                    .build()
-                    .also { instance = it }
+                ).build().also { instance = it }
             }
         }
     }
