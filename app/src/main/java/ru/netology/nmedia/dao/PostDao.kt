@@ -13,6 +13,9 @@ interface PostDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(post: Post)
 
+    @Update
+    fun update(post: Post)
+
     @Query("""
         UPDATE posts SET 
         likes = likes + CASE WHEN likedByMe THEN -1 ELSE 1 END,
