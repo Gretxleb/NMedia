@@ -12,4 +12,9 @@
     <string name="new_post">Новый пост</string>
     <string name="chooser_share_post">Поделиться постом через</string>
     <string name="content_text">Содержимое</string>
+    <string name="channel_remote_name">Удаленные уведомления</string>
+    <string name="channel_remote_description">Уведомления об удаленных изменениях</string>
+    <string name="notification_user_liked">%1$s оценил пост %2$s</string>
+    <string name="notification_user_published_post">%1$s опубликовал новый пост:</string>
+    <string name="description_post_share">Поделиться</string>
 </resources>
