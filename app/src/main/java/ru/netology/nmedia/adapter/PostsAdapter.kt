@@ -37,8 +37,8 @@ class PostsAdapter(
             binding.author.text = post.author
             binding.published.text = post.published
             binding.content.text = post.content
-            binding.likes.text = post.likes.toString()
-            binding.shares.text = post.shares.toString()
+            binding.like.text = post.likes.toString()
+            binding.share.text = post.shares.toString()
             binding.like.isChecked = post.likedByMe
 
             binding.like.setOnClickListener {
@@ -49,12 +49,8 @@ class PostsAdapter(
                 onShare(post)
             }
 
-            binding.remove.setOnClickListener {
+            binding.delete.setOnClickListener {
                 onRemove(post)
-            }
-
-            binding.edit.setOnClickListener {
-                onEdit(post)
             }
 
             binding.root.setOnClickListener {

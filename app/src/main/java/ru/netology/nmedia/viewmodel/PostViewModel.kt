@@ -16,7 +16,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             AppDb.getInstance(application).postDao()
         )
 
-    val data: LiveData<List<Post>> = repository.getAll()
+    val data: LiveData<List<Post>> = repository.data
 
     private val _edited = MutableLiveData<Post?>()
     val edited: MutableLiveData<Post?> = _edited
@@ -37,9 +37,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         _edited.value = post
     }
 
+    fun cancelEdit() {
+        _edited.value = null
+    }
+
+    fun changeContent(content: String) {
+        val text = content.trim()
+        if (_edited.value?.content == text) return
+        _edited.value = _edited.value?.copy(content = text)
+    }
+
     fun save() {
-        val post = _edited.value ?: return
-        repository.edit(post)
+        _edited.value?.let {
+            repository.save(it)
+        }
         _edited.value = null
     }
 

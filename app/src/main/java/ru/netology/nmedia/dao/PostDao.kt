@@ -1,4 +1,4 @@
-package ru.netology.nmedia.db
+package ru.netology.nmedia.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
@@ -26,4 +26,11 @@ interface PostDao {
 
     @Query("DELETE FROM posts WHERE id = :id")
     fun removeById(id: Long)
+
+    @Query("""
+        UPDATE posts SET 
+        shares = shares + 1
+        WHERE id = :id
+    """)
+    fun shareById(id: Long)
 }
