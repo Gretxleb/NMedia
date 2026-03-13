@@ -69,6 +69,32 @@
             app:layout_constraintTop_toBottomOf="@id/headerBarrier"
             tools:text="Content" />
 
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/videoGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="videoPreview, playVideo" />
+
+        <ImageView
+            android:id="@+id/videoPreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_background"
+            app:layout_constraintTop_toBottomOf="@id/content" />
+
+        <ImageView
+            android:id="@+id/playVideo"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@android:drawable/ic_media_play"
+            app:layout_constraintBottom_toBottomOf="@id/videoPreview"
+            app:layout_constraintEnd_toEndOf="@id/videoPreview"
+            app:layout_constraintStart_toStartOf="@id/videoPreview"
+            app:layout_constraintTop_toTopOf="@id/videoPreview" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/like"
             style="@style/Widget.AppTheme.LikeButton"
@@ -77,7 +103,7 @@
             android:checkable="true"
             app:icon="@drawable/ic_like_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/content"
+            app:layout_constraintTop_toBottomOf="@id/videoPreview"
             tools:text="10" />
 
         <com.google.android.material.button.MaterialButton

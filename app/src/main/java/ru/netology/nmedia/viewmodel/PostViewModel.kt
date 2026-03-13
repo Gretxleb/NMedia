@@ -4,22 +4,30 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.model.Post
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryRoomImpl
+import ru.netology.nmedia.repository.PostRepositoryFileImpl
+
+private val empty = Post(
+    id = 0,
+    content = "",
+    author = "",
+    likedByMe = false,
+    likes = 0,
+    published = "",
+    shares = 0,
+    video = null
+)
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: PostRepository =
-        PostRepositoryRoomImpl(
-            AppDb.getInstance(application).postDao()
-        )
+        PostRepositoryFileImpl(application)
 
     val data: LiveData<List<Post>> = repository.data
 
-    private val _edited = MutableLiveData<Post?>()
-    val edited: MutableLiveData<Post?> = _edited
+    private val _edited = MutableLiveData(empty)
+    val edited: LiveData<Post> = _edited
 
     fun likeById(id: Long) {
         repository.likeById(id)
@@ -38,7 +46,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun cancelEdit() {
-        _edited.value = null
+        _edited.value = empty
     }
 
     fun changeContent(content: String) {
@@ -51,20 +59,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         _edited.value?.let {
             repository.save(it)
         }
-        _edited.value = null
-    }
-
-    fun createPost(content: String) {
-        val post = Post(
-            id = 0L,
-            author = "Me",
-            content = content,
-            published = "now",
-            likedByMe = false,
-            likes = 0,
-            shares = 0,
-            video = null
-        )
-        repository.save(post)
+        _edited.value = empty
     }
 }

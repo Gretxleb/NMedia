@@ -1,6 +1,7 @@
 package ru.netology.nmedia.activity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
+import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.databinding.FragmentPostDetailsBinding
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -36,6 +38,9 @@ class PostDetailsFragment : Fragment() {
             binding.content.text = post.content
             binding.like.isChecked = post.likedByMe
             binding.like.text = post.likes.toString()
+            binding.share.text = post.shares.toString()
+
+            binding.videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
 
             binding.like.setOnClickListener {
                 viewModel.likeById(post.id)
@@ -49,6 +54,21 @@ class PostDetailsFragment : Fragment() {
                 }
                 val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
+                viewModel.shareById(post.id)
+            }
+
+            binding.playVideo.setOnClickListener {
+                post.video?.let {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
+                    startActivity(intent)
+                }
+            }
+
+            binding.videoPreview.setOnClickListener {
+                post.video?.let {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
+                    startActivity(intent)
+                }
             }
 
             binding.menu.setOnClickListener {
@@ -62,7 +82,12 @@ class PostDetailsFragment : Fragment() {
                             }
                             R.id.edit -> {
                                 viewModel.edit(post)
-                                findNavController().navigate(R.id.action_postDetailsFragment_to_newPostFragment)
+                                findNavController().navigate(
+                                    R.id.action_postDetailsFragment_to_newPostFragment,
+                                    Bundle().apply {
+                                        textArg = post.content
+                                    }
+                                )
                                 true
                             }
                             else -> false
