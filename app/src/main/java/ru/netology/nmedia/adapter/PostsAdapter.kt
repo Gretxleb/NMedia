@@ -12,13 +12,14 @@ import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.model.Post
 
 class PostsAdapter(
-    private val onLike: (Post) -> Unit,
     private val onShare: (Post) -> Unit,
     private val onRemove: (Post) -> Unit,
     private val onEdit: (Post) -> Unit,
     private val onPostClick: (Post) -> Unit,
     private val onVideoClick: (Post) -> Unit
 ) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
+
+    var onLikeListener: ((Post) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = CardPostBinding.inflate(
@@ -48,7 +49,7 @@ class PostsAdapter(
             binding.videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
 
             binding.like.setOnClickListener {
-                onLike(post)
+                onLikeListener?.invoke(post)
             }
 
             binding.share.setOnClickListener {
