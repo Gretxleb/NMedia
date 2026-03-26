@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import ru.netology.nmedia.model.Post
+import ru.netology.nmedia.dto.Post
 
 class PostRepositoryFileImpl(
     private val context: Context,
@@ -33,7 +33,10 @@ class PostRepositoryFileImpl(
     override val data: LiveData<List<Post>>
         get() = _data
 
-    override fun likeById(id: Long) {
+    override suspend fun getAll() {
+    }
+
+    override suspend fun likeById(id: Long) {
         posts = posts.map {
             if (it.id != id) it else it.copy(
                 likedByMe = !it.likedByMe,
@@ -44,7 +47,7 @@ class PostRepositoryFileImpl(
         sync()
     }
 
-    override fun shareById(id: Long) {
+    override suspend fun shareById(id: Long) {
         posts = posts.map {
             if (it.id != id) it else it.copy(shares = it.shares + 1)
         }
@@ -52,13 +55,13 @@ class PostRepositoryFileImpl(
         sync()
     }
 
-    override fun removeById(id: Long) {
+    override suspend fun removeById(id: Long) {
         posts = posts.filter { it.id != id }
         _data.value = posts
         sync()
     }
 
-    override fun save(post: Post) {
+    override suspend fun save(post: Post) {
         if (post.id == 0L) {
             posts = listOf(
                 post.copy(

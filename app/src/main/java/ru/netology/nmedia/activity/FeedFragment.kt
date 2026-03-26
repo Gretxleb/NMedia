@@ -12,8 +12,10 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
+import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
@@ -28,8 +30,12 @@ class FeedFragment : Fragment() {
     ): View {
         val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
-        val adapter = PostsAdapter(
-            onShare = { post ->
+        val adapter = PostsAdapter(object : OnInteractionListener {
+            override fun onLike(post: Post) {
+                viewModel.likeById(post.id)
+            }
+
+            override fun onShare(post: Post) {
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     putExtra(Intent.EXTRA_TEXT, post.content)
@@ -38,11 +44,13 @@ class FeedFragment : Fragment() {
                 val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
                 viewModel.shareById(post.id)
-            },
-            onRemove = { post ->
+            }
+
+            override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
-            },
-            onEdit = { post ->
+            }
+
+            override fun onEdit(post: Post) {
                 viewModel.edit(post)
                 findNavController().navigate(
                     R.id.action_feedFragment_to_newPostFragment,
@@ -50,25 +58,24 @@ class FeedFragment : Fragment() {
                         textArg = post.content
                     }
                 )
-            },
-            onPostClick = { post ->
+            }
+
+            override fun onPostClick(post: Post) {
                 findNavController().navigate(
                     R.id.action_feedFragment_to_postDetailsFragment,
                     Bundle().apply {
                         putLong("postId", post.id)
                     }
                 )
-            },
-            onVideoClick = { post ->
+            }
+
+            override fun onVideoClick(post: Post) {
                 post.video?.let {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
                     startActivity(intent)
                 }
-            },
-            onLike = { post ->
-                viewModel.likeById(post.id)
             }
-        )
+        })
 
         binding.list.adapter = adapter
 
@@ -79,9 +86,6 @@ class FeedFragment : Fragment() {
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
-            if (state.error) {
-                // Show snackbar or toast
-            }
             binding.swipeRefresh.isRefreshing = state.refreshing
         }
 

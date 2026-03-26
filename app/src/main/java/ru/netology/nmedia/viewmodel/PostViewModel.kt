@@ -3,11 +3,10 @@ package ru.netology.nmedia.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryImpl
+import ru.netology.nmedia.repository.PostRepositoryFileImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 
 private val empty = Post(
@@ -22,9 +21,7 @@ private val empty = Post(
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: PostRepository = PostRepositoryImpl(
-        AppDb.getInstance(application).postDao()
-    )
+    private val repository: PostRepository = PostRepositoryFileImpl(application)
 
     val data: LiveData<FeedModel> = repository.data.map {
         FeedModel(posts = it, empty = it.isEmpty())
