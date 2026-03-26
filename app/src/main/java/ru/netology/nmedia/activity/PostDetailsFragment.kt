@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.databinding.FragmentPostDetailsBinding
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class PostDetailsFragment : Fragment() {
@@ -28,25 +29,33 @@ class PostDetailsFragment : Fragment() {
         val binding = FragmentPostDetailsBinding.inflate(inflater, container, false)
         val postId = arguments?.getLong("postId") ?: return binding.root
 
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            val post = posts.find { it.id == postId } ?: run {
+        viewModel.data.observe(viewLifecycleOwner) { feed ->
+            val post = feed.posts.find { it.id == postId } ?: run {
                 findNavController().navigateUp()
                 return@observe
             }
-            binding.author.text = post.author
-            binding.published.text = post.published
-            binding.content.text = post.content
-            binding.like.isChecked = post.likedByMe
-            binding.like.text = post.likes.toString()
-            binding.share.text = post.shares.toString()
+            bindPost(binding, post)
+        }
 
-            binding.videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
+        return binding.root
+    }
 
-            binding.like.setOnClickListener {
+    private fun bindPost(binding: FragmentPostDetailsBinding, post: Post) {
+        binding.apply {
+            author.text = post.author
+            published.text = post.published
+            content.text = post.content
+            like.isChecked = post.likedByMe
+            like.text = post.likes.toString()
+            share.text = post.shares.toString()
+
+            videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            like.setOnClickListener {
                 viewModel.likeById(post.id)
             }
 
-            binding.share.setOnClickListener {
+            share.setOnClickListener {
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     putExtra(Intent.EXTRA_TEXT, post.content)
@@ -57,21 +66,21 @@ class PostDetailsFragment : Fragment() {
                 viewModel.shareById(post.id)
             }
 
-            binding.playVideo.setOnClickListener {
+            playVideo.setOnClickListener {
                 post.video?.let {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
                     startActivity(intent)
                 }
             }
 
-            binding.videoPreview.setOnClickListener {
+            videoPreview.setOnClickListener {
                 post.video?.let {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
                     startActivity(intent)
                 }
             }
 
-            binding.menu.setOnClickListener {
+            menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)
                     setOnMenuItemClickListener { item ->
@@ -96,7 +105,5 @@ class PostDetailsFragment : Fragment() {
                 }.show()
             }
         }
-
-        return binding.root
     }
 }

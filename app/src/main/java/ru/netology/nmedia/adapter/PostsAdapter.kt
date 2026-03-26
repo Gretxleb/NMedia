@@ -1,72 +1,66 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.View
+import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
-import ru.netology.nmedia.model.Post
+import ru.netology.nmedia.dto.Post
+
+interface OnInteractionListener {
+    fun onLike(post: Post) {}
+    fun onEdit(post: Post) {}
+    fun onRemove(post: Post) {}
+    fun onShare(post: Post) {}
+    fun onVideoClick(post: Post) {}
+    fun onPostClick(post: Post) {}
+}
 
 class PostsAdapter(
-    private val onShare: (Post) -> Unit,
-    private val onRemove: (Post) -> Unit,
-    private val onEdit: (Post) -> Unit,
-    private val onPostClick: (Post) -> Unit,
-    private val onVideoClick: (Post) -> Unit
-) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
-
-    var onLikeListener: ((Post) -> Unit)? = null
-
+    private val onInteractionListener: OnInteractionListener,
+) : ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val binding = CardPostBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return PostViewHolder(binding)
+        val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return PostViewHolder(binding, onInteractionListener)
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val post = getItem(position)
+        holder.bind(post)
     }
+}
 
-    inner class PostViewHolder(
-        private val binding: CardPostBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+class PostViewHolder(
+    private val binding: CardPostBinding,
+    private val onInteractionListener: OnInteractionListener,
+) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(post: Post) {
-            binding.author.text = post.author
-            binding.published.text = post.published
-            binding.content.text = post.content
-            binding.like.text = post.likes.toString()
-            binding.share.text = post.shares.toString()
-            binding.like.isChecked = post.likedByMe
+    fun bind(post: Post) {
+        binding.apply {
+            author.text = post.author
+            published.text = post.published
+            content.text = post.content
+            like.isChecked = post.likedByMe
+            like.text = post.likes.toString()
+            share.text = post.shares.toString()
 
-            binding.videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
+            videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
 
-            binding.like.setOnClickListener {
-                onLikeListener?.invoke(post)
-            }
-
-            binding.share.setOnClickListener {
-                onShare(post)
-            }
-
-            binding.menu.setOnClickListener {
+            menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)
                     setOnMenuItemClickListener { item ->
                         when (item.itemId) {
                             R.id.remove -> {
-                                onRemove(post)
+                                onInteractionListener.onRemove(post)
                                 true
                             }
                             R.id.edit -> {
-                                onEdit(post)
+                                onInteractionListener.onEdit(post)
                                 true
                             }
                             else -> false
@@ -75,25 +69,35 @@ class PostsAdapter(
                 }.show()
             }
 
-            binding.playVideo.setOnClickListener {
-                onVideoClick(post)
+            like.setOnClickListener {
+                onInteractionListener.onLike(post)
             }
 
-            binding.videoPreview.setOnClickListener {
-                onVideoClick(post)
+            share.setOnClickListener {
+                onInteractionListener.onShare(post)
             }
 
-            binding.root.setOnClickListener {
-                onPostClick(post)
+            playVideo.setOnClickListener {
+                onInteractionListener.onVideoClick(post)
+            }
+
+            videoPreview.setOnClickListener {
+                onInteractionListener.onVideoClick(post)
+            }
+
+            root.setOnClickListener {
+                onInteractionListener.onPostClick(post)
             }
         }
     }
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
-    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean =
-        oldItem.id == newItem.id
+    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+        return oldItem.id == newItem.id
+    }
 
-    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean =
-        oldItem == newItem
+    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+        return oldItem == newItem
+    }
 }

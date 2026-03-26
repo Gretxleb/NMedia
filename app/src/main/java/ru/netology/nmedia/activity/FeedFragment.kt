@@ -14,7 +14,6 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
-import ru.netology.nmedia.model.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
@@ -65,17 +64,33 @@ class FeedFragment : Fragment() {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
                     startActivity(intent)
                 }
+            },
+            onLike = { post ->
+                viewModel.likeById(post.id)
             }
         )
-
-        adapter.onLikeListener = { post ->
-            viewModel.likeById(post.id)
-        }
 
         binding.list.adapter = adapter
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
+            binding.emptyText.isVisible = state.empty
+        }
+
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            binding.progress.isVisible = state.loading
+            if (state.error) {
+                // Show snackbar or toast
+            }
+            binding.swipeRefresh.isRefreshing = state.refreshing
+        }
+
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.refreshPosts()
+        }
+
+        binding.retryButton.setOnClickListener {
+            viewModel.loadPosts()
         }
 
         binding.fab.setOnClickListener {
