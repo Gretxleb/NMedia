@@ -43,7 +43,6 @@ class FeedFragment : Fragment() {
                 }
                 val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
-                viewModel.shareById(post.id)
             }
 
             override fun onRemove(post: Post) {
@@ -69,32 +68,13 @@ class FeedFragment : Fragment() {
                 )
             }
 
-            override fun onVideoClick(post: Post) {
-                post.video?.let {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
-                    startActivity(intent)
-                }
-            }
         })
 
         binding.list.adapter = adapter
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
-            binding.emptyText.isVisible = state.empty
-        }
-
-        viewModel.state.observe(viewLifecycleOwner) { state ->
-            binding.progress.isVisible = state.loading
-            binding.swipeRefresh.isRefreshing = state.refreshing
-        }
-
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshPosts()
-        }
-
-        binding.retryButton.setOnClickListener {
-            viewModel.loadPosts()
+            binding.list.isVisible = state.posts.isNotEmpty()
         }
 
         binding.fab.setOnClickListener {

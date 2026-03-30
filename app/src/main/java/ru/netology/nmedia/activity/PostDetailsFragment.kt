@@ -49,7 +49,7 @@ class PostDetailsFragment : Fragment() {
             like.text = post.likes.toString()
             share.text = post.shares.toString()
 
-            videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
+            videoGroup.visibility = View.GONE
 
             like.setOnClickListener {
                 viewModel.likeById(post.id)
@@ -63,21 +63,6 @@ class PostDetailsFragment : Fragment() {
                 }
                 val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
-                viewModel.shareById(post.id)
-            }
-
-            playVideo.setOnClickListener {
-                post.video?.let {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
-                    startActivity(intent)
-                }
-            }
-
-            videoPreview.setOnClickListener {
-                post.video?.let {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
-                    startActivity(intent)
-                }
             }
 
             menu.setOnClickListener {

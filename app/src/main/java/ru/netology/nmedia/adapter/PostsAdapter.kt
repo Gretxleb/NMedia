@@ -48,7 +48,7 @@ class PostViewHolder(
             like.text = post.likes.toString()
             share.text = post.shares.toString()
 
-            videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
+            videoGroup.visibility = View.GONE
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
@@ -75,14 +75,6 @@ class PostViewHolder(
 
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
-            }
-
-            playVideo.setOnClickListener {
-                onInteractionListener.onVideoClick(post)
-            }
-
-            videoPreview.setOnClickListener {
-                onInteractionListener.onVideoClick(post)
             }
 
             root.setOnClickListener {

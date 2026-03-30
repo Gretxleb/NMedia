@@ -1,75 +1,164 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
-import ru.netology.nmedia.api.PostsApi
-import ru.netology.nmedia.dao.PostDao
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toDto
-import ru.netology.nmedia.entity.toEntity
-import java.io.IOException
 
-class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
-    override val data: LiveData<List<Post>> = dao.getAll().map { it.toDto() }
+class PostRepositoryImpl(
+    private val client: OkHttpClient = OkHttpClient(),
+    private val gson: Gson = Gson(),
+) : PostRepository {
+    private val listType = object : TypeToken<List<Post>>() {}.type
 
-    override suspend fun getAll() {
-        try {
-            val response = PostsApi.service.getAll()
-            if (!response.isSuccessful) {
-                throw RuntimeException("Error: ${response.code()}")
+    private fun url(path: String): String = "http://10.0.2.2:9999$path"
+
+    override fun getAll(callback: PostRepository.Callback<List<Post>>) {
+        val request = Request.Builder()
+            .get()
+            .url(url("/api/posts"))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: java.io.IOException) {
+                callback.onError(e)
             }
-            val body = response.body() ?: throw RuntimeException("Empty body")
-            dao.insert(body.toEntity())
-        } catch (e: IOException) {
-            throw RuntimeException("Network error")
-        }
+
+            override fun onResponse(call: Call, response: okhttp3.Response) {
+                response.body?.use { body ->
+                    if (!response.isSuccessful) {
+                        callback.onError(RuntimeException("HTTP ${response.code}"))
+                        return
+                    }
+                    val json = body.string()
+                    val posts: List<Post> = gson.fromJson(json, listType)
+                    callback.onSuccess(posts)
+                } ?: run {
+                    callback.onError(RuntimeException("Empty body"))
+                }
+            }
+        })
     }
 
-    override suspend fun likeById(id: Long) {
-        try {
-            val post = data.value?.find { it.id == id } ?: return
-            val response = if (post.likedByMe) {
-                PostsApi.service.unlikeById(id)
-            } else {
-                PostsApi.service.likeById(id)
+    override fun save(post: Post, callback: PostRepository.Callback<Post>) {
+        val isNew = post.id == 0L
+        val method = if (isNew) "POST" else "PUT"
+        val requestUrl = if (isNew) url("/api/posts") else url("/api/posts/${post.id}")
+
+        val json = gson.toJson(post)
+        val requestBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+        val request = Request.Builder()
+            .method(method, requestBody)
+            .url(requestUrl)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: java.io.IOException) {
+                callback.onError(e)
             }
-            if (!response.isSuccessful) {
-                throw RuntimeException("Error: ${response.code()}")
+
+            override fun onResponse(call: Call, response: okhttp3.Response) {
+                response.body?.use { body ->
+                    if (!response.isSuccessful) {
+                        callback.onError(RuntimeException("HTTP ${response.code}"))
+                        return
+                    }
+                    val jsonResponse = body.string()
+                    val saved = gson.fromJson(jsonResponse, Post::class.java)
+                    callback.onSuccess(saved)
+                } ?: run {
+                    callback.onError(RuntimeException("Empty body"))
+                }
             }
-            val body = response.body() ?: throw RuntimeException("Empty body")
-            dao.insert(PostEntity.fromDto(body))
-        } catch (e: IOException) {
-            throw RuntimeException("Network error")
-        }
+        })
     }
 
-    override suspend fun removeById(id: Long) {
-        try {
-            val response = PostsApi.service.removeById(id)
-            if (!response.isSuccessful) {
-                throw RuntimeException("Error: ${response.code()}")
+    override fun removeById(id: Long, callback: PostRepository.Callback<Unit>) {
+        val request = Request.Builder()
+            .delete()
+            .url(url("/api/posts/$id"))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: java.io.IOException) {
+                callback.onError(e)
             }
-            dao.removeById(id)
-        } catch (e: IOException) {
-            throw RuntimeException("Network error")
-        }
+
+            override fun onResponse(call: Call, response: okhttp3.Response) {
+                if (response.isSuccessful) {
+                    callback.onSuccess(Unit)
+                } else {
+                    callback.onError(RuntimeException("HTTP ${response.code}"))
+                }
+            }
+        })
     }
 
-    override suspend fun save(post: Post) {
-        try {
-            val response = PostsApi.service.save(post)
-            if (!response.isSuccessful) {
-                throw RuntimeException("Error: ${response.code()}")
-            }
-            val body = response.body() ?: throw RuntimeException("Empty body")
-            dao.insert(PostEntity.fromDto(body))
-        } catch (e: IOException) {
-            throw RuntimeException("Network error")
-        }
-    }
+    override fun likeById(id: Long, callback: PostRepository.Callback<Post>) {
+        val getRequest = Request.Builder()
+            .get()
+            .url(url("/api/posts/$id"))
+            .build()
 
-    override suspend fun shareById(id: Long) {
-        dao.shareById(id)
+        client.newCall(getRequest).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: java.io.IOException) {
+                callback.onError(e)
+            }
+
+            override fun onResponse(call: Call, response: okhttp3.Response) {
+                if (!response.isSuccessful) {
+                    callback.onError(RuntimeException("HTTP ${response.code}"))
+                    return
+                }
+
+                val body = response.body
+                if (body == null) {
+                    callback.onError(RuntimeException("Empty body"))
+                    return
+                }
+
+                body.use {
+                    val jsonResponse = it.string()
+                    val post: Post = gson.fromJson(jsonResponse, Post::class.java)
+
+                    val likeRequest = if (!post.likedByMe) {
+                        Request.Builder()
+                            .post("{}".toRequestBody("application/json; charset=utf-8".toMediaType()))
+                            .url(url("/api/posts/$id/likes"))
+                            .build()
+                    } else {
+                        Request.Builder()
+                            .delete()
+                            .url(url("/api/posts/$id/likes"))
+                            .build()
+                    }
+
+                    client.newCall(likeRequest).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: java.io.IOException) {
+                            callback.onError(e)
+                        }
+
+                        override fun onResponse(call: Call, likeResponse: okhttp3.Response) {
+                            likeResponse.body?.use { likeBody ->
+                                if (!likeResponse.isSuccessful) {
+                                    callback.onError(RuntimeException("HTTP ${likeResponse.code}"))
+                                    return
+                                }
+                                val jsonLike = likeBody.string()
+                                val updated = gson.fromJson(jsonLike, Post::class.java)
+                                callback.onSuccess(updated)
+                            } ?: run {
+                                callback.onError(RuntimeException("Empty body"))
+                            }
+                        }
+                    })
+                }
+            }
+        })
     }
 }
