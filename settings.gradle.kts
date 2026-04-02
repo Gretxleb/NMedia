@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "NMedia"
-include(":app")
+include(":app", ":core:network", ":core:database", ":feature:home", ":feature:profile")
