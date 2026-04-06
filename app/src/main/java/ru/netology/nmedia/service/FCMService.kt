@@ -1,5 +1,6 @@
 package ru.netology.nmedia.service
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
@@ -26,6 +27,7 @@ class FCMService : FirebaseMessagingService() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMessageReceived(message: RemoteMessage) {
         val notification = message.notification ?: return
         val builder = NotificationCompat.Builder(this, channelId)
