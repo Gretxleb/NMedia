@@ -19,7 +19,6 @@ class FeedFragment : Fragment() {
 
         val adapter = PostAdapter(
             onLike = { viewModel.likeById(it.id) },
-            onShare = { viewModel.shareById(it.id) },
             onRemove = { viewModel.removeById(it.id) },
             onEdit = {},
             onPostClick = {
