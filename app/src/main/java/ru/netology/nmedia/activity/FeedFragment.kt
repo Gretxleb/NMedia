@@ -5,7 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.adapter.PostAdapter
+import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -17,12 +17,12 @@ class FeedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentFeedBinding.bind(view)
 
-        val adapter = PostAdapter(
+        val adapter = PostsAdapter(
             onLike = { viewModel.likeById(it.id) },
             onRemove = { viewModel.removeById(it.id) },
             onEdit = {},
             onPostClick = {
-                val action = FeedFragmentDirections.actionFeedFragmentToPostFragment(it.id)
+                val action = FeedFragmentDirections.actionFeedFragmentToPostDetailsFragment(it.id)
                 findNavController().navigate(action)
             },
             onVideoClick = {}
@@ -30,16 +30,13 @@ class FeedFragment : Fragment() {
 
         binding?.list?.adapter = adapter
 
-        viewModel.data.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.data.observe(viewLifecycleOwner) { feedModel ->
+            adapter.submitList(feedModel.posts)
+            binding?.swipeRefresh?.isRefreshing = feedModel.loading
         }
 
         binding?.swipeRefresh?.setOnRefreshListener {
-            viewModel.refresh()
-        }
-
-        viewModel.loading.observe(viewLifecycleOwner) {
-            binding?.swipeRefresh?.isRefreshing = it
+            viewModel.loadPosts()
         }
     }
 

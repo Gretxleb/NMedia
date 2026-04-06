@@ -4,12 +4,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import ru.netology.nmedia.databinding.PostCardBinding
+import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
 class PostAdapter(
     private val onLike: (Post) -> Unit,
-    private val onShare: (Post) -> Unit,
     private val onRemove: (Post) -> Unit,
     private val onEdit: (Post) -> Unit,
     private val onPostClick: (Post) -> Unit,
@@ -17,7 +16,7 @@ class PostAdapter(
 ) : ListAdapter<Post, PostAdapter.ViewHolder>(PostDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = PostCardBinding.inflate(
+        val binding = CardPostBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -30,13 +29,12 @@ class PostAdapter(
     }
 
     inner class ViewHolder(
-        private val binding: PostCardBinding
+        private val binding: CardPostBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(post: Post) {
             binding.root.setOnClickListener { onPostClick(post) }
             binding.like.setOnClickListener { onLike(post) }
-            binding.share.setOnClickListener { onShare(post) }
             binding.remove.setOnClickListener { onRemove(post) }
         }
     }
