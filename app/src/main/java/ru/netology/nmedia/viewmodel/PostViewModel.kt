@@ -16,7 +16,7 @@ private val empty = Post(
     content = "",
     likedByMe = false,
     likes = 0,
-    published = "",
+    published = 0L,
     shares = 0
 )
 

@@ -45,9 +45,9 @@ class FeedFragment : Fragment() {
             adapter.submitList(state.posts)
             binding.progress.isVisible = state.loading
             binding.swipeRefresh.isRefreshing = false
-            binding.retryButton.isVisible = state.error
-            binding.emptyText.isVisible = !state.loading && !state.error && state.posts.isEmpty()
+            binding.errorGroup.isVisible = state.error
             binding.list.isVisible = !state.loading && !state.error
+            binding.emptyText.isVisible = !state.loading && !state.error && state.posts.isEmpty()
         }
 
         binding.retryButton.setOnClickListener {
