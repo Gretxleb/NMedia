@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
@@ -32,6 +34,13 @@ class PostsAdapter(
             binding.content.text = post.content
             binding.like.isChecked = post.likedByMe
             binding.like.text = post.likes.toString()
+
+            Glide.with(binding.avatar)
+                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
+                .placeholder(android.R.drawable.ic_menu_gallery)
+                .transform(CircleCrop())
+                .into(binding.avatar)
+
             binding.root.setOnClickListener { onPostClick(post) }
             binding.like.setOnClickListener { onLike(post) }
             binding.menu.setOnClickListener { onRemove(post) }
