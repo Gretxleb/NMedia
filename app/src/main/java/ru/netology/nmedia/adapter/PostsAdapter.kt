@@ -28,7 +28,7 @@ class PostsAdapter(
     inner class ViewHolder(private val binding: CardPostBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(post: Post) {
             binding.author.text = post.author
-            binding.published.text = post.published
+            binding.published.text = post.published.toString()
             binding.content.text = post.content
             binding.like.isChecked = post.likedByMe
             binding.like.text = post.likes.toString()
