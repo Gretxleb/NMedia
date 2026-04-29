@@ -1,90 +1,87 @@
 package ru.netology.nmedia.repository
 
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.error.ApiError
+import ru.netology.nmedia.error.NetworkError
+import ru.netology.nmedia.error.UnknownError
+import java.io.IOException
 
-class PostRepositoryImpl : PostRepository {
+class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
-    override fun getAll(callback: PostRepository.Callback<List<Post>>) {
-        PostApi.getAll().enqueue(object : Callback<List<Post>> {
-            override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
-                if (!response.isSuccessful) {
-                    callback.onError(RuntimeException("HTTP ${response.code()}"))
-                    return
-                }
-                callback.onSuccess(response.body() ?: emptyList())
-            }
+    override val data: Flow<List<Post>> = dao.getAll().map { it.map(PostEntity::toDto) }
 
-            override fun onFailure(call: Call<List<Post>>, t: Throwable) {
-                callback.onError(Exception(t))
-            }
-        })
+    override suspend fun getAll() {
+        try {
+            val response = PostApi.getAll()
+            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(body.map(PostEntity::fromDto))
+        } catch (e: ApiError) {
+            throw e
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 
-    override fun save(post: Post, callback: PostRepository.Callback<Post>) {
-        val call = if (post.id == 0L) PostApi.save(post) else PostApi.update(post.id, post)
-        call.enqueue(object : Callback<Post> {
-            override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                if (!response.isSuccessful) {
-                    callback.onError(RuntimeException("HTTP ${response.code()}"))
-                    return
-                }
-                callback.onSuccess(response.body() ?: throw RuntimeException("Empty body"))
-            }
-
-            override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(Exception(t))
-            }
-        })
+    override suspend fun save(post: Post) {
+        try {
+            val response = if (post.id == 0L) PostApi.save(post) else PostApi.update(post.id, post)
+            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body))
+        } catch (e: ApiError) {
+            throw e
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 
-    override fun removeById(id: Long, callback: PostRepository.Callback<Unit>) {
-        PostApi.removeById(id).enqueue(object : Callback<Unit> {
-            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                if (!response.isSuccessful) {
-                    callback.onError(RuntimeException("HTTP ${response.code()}"))
-                    return
-                }
-                callback.onSuccess(Unit)
-            }
-
-            override fun onFailure(call: Call<Unit>, t: Throwable) {
-                callback.onError(Exception(t))
-            }
-        })
+    override suspend fun removeById(id: Long) {
+        val post = dao.getById(id)
+        dao.removeById(id)
+        try {
+            val response = PostApi.removeById(id)
+            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+        } catch (e: ApiError) {
+            dao.insert(post)
+            throw e
+        } catch (e: IOException) {
+            dao.insert(post)
+            throw NetworkError
+        } catch (e: Exception) {
+            dao.insert(post)
+            throw UnknownError
+        }
     }
 
-    override fun likeById(id: Long, callback: PostRepository.Callback<Post>) {
-        PostApi.getAll().enqueue(object : Callback<List<Post>> {
-            override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
-                if (!response.isSuccessful) {
-                    callback.onError(RuntimeException("HTTP ${response.code()}"))
-                    return
-                }
-                val post = response.body()?.find { it.id == id }
-                    ?: run { callback.onError(RuntimeException("Post not found")); return }
-                val likeCall = if (post.likedByMe) PostApi.unlikeById(id) else PostApi.likeById(id)
-                likeCall.enqueue(object : Callback<Post> {
-                    override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                        if (!response.isSuccessful) {
-                            callback.onError(RuntimeException("HTTP ${response.code()}"))
-                            return
-                        }
-                        callback.onSuccess(response.body() ?: throw RuntimeException("Empty body"))
-                    }
-
-                    override fun onFailure(call: Call<Post>, t: Throwable) {
-                        callback.onError(Exception(t))
-                    }
-                })
-            }
-
-            override fun onFailure(call: Call<List<Post>>, t: Throwable) {
-                callback.onError(Exception(t))
-            }
-        })
+    override suspend fun likeById(id: Long) {
+        val post = dao.getById(id)
+        if (post.likedByMe) {
+            dao.unlikeById(id)
+        } else {
+            dao.likeById(id)
+        }
+        try {
+            val response = if (post.likedByMe) PostApi.unlikeById(id) else PostApi.likeById(id)
+            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+        } catch (e: ApiError) {
+            if (post.likedByMe) dao.likeById(id) else dao.unlikeById(id)
+            throw e
+        } catch (e: IOException) {
+            if (post.likedByMe) dao.likeById(id) else dao.unlikeById(id)
+            throw NetworkError
+        } catch (e: Exception) {
+            if (post.likedByMe) dao.likeById(id) else dao.unlikeById(id)
+            throw UnknownError
+        }
     }
 }

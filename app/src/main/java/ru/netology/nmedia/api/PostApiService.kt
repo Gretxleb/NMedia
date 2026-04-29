@@ -2,7 +2,7 @@ package ru.netology.nmedia.api
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -13,36 +13,45 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import ru.netology.nmedia.dto.Post
 
-val retrofit = Retrofit.Builder()
-    .baseUrl("http://10.0.2.2:9999")
-    .addConverterFactory(GsonConverterFactory.create())
-    .client(
-        OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
-            .build()
-    )
-    .build()
+object PostApi {
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://10.0.2.2:9999")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(
+            OkHttpClient.Builder()
+                .addInterceptor(HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.BODY
+                })
+                .build()
+        )
+        .build()
 
-val PostApi: PostApiService = retrofit.create(PostApiService::class.java)
+    private val service = retrofit.create(PostApiService::class.java)
+
+    suspend fun getAll(): Response<List<Post>> = service.getAll()
+    suspend fun save(post: Post): Response<Post> = service.save(post)
+    suspend fun update(id: Long, post: Post): Response<Post> = service.update(id, post)
+    suspend fun removeById(id: Long): Response<Unit> = service.removeById(id)
+    suspend fun likeById(id: Long): Response<Post> = service.likeById(id)
+    suspend fun unlikeById(id: Long): Response<Post> = service.unlikeById(id)
+}
 
 interface PostApiService {
     @GET("/api/posts")
-    fun getAll(): Call<List<Post>>
+    suspend fun getAll(): Response<List<Post>>
 
     @POST("/api/posts")
-    fun save(@Body post: Post): Call<Post>
+    suspend fun save(@Body post: Post): Response<Post>
 
     @PUT("/api/posts/{id}")
-    fun update(@Path("id") id: Long, @Body post: Post): Call<Post>
+    suspend fun update(@Path("id") id: Long, @Body post: Post): Response<Post>
 
     @DELETE("/api/posts/{id}")
-    fun removeById(@Path("id") id: Long): Call<Unit>
+    suspend fun removeById(@Path("id") id: Long): Response<Unit>
 
     @POST("/api/posts/{id}/likes")
-    fun likeById(@Path("id") id: Long): Call<Post>
+    suspend fun likeById(@Path("id") id: Long): Response<Post>
 
     @DELETE("/api/posts/{id}/likes")
-    fun unlikeById(@Path("id") id: Long): Call<Post>
+    suspend fun unlikeById(@Path("id") id: Long): Response<Post>
 }

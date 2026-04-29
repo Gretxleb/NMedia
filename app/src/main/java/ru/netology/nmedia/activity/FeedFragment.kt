@@ -41,13 +41,15 @@ class FeedFragment : Fragment() {
 
         binding.list.adapter = adapter
 
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
+            adapter.submitList(posts)
+            binding.emptyText.isVisible = posts.isEmpty()
+        }
+
+        viewModel.state.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
-            binding.swipeRefresh.isRefreshing = false
+            binding.swipeRefresh.isRefreshing = state.refreshing
             binding.errorGroup.isVisible = state.error
-            binding.list.isVisible = !state.loading && !state.error
-            binding.emptyText.isVisible = !state.loading && !state.error && state.posts.isEmpty()
         }
 
         binding.retryButton.setOnClickListener {
