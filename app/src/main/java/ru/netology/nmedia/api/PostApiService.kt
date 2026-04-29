@@ -11,6 +11,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 import ru.netology.nmedia.dto.Post
 
 object PostApi {
@@ -29,6 +30,7 @@ object PostApi {
     private val service = retrofit.create(PostApiService::class.java)
 
     suspend fun getAll(): Response<List<Post>> = service.getAll()
+    suspend fun getNewer(id: Long): Response<List<Post>> = service.getNewer(id)
     suspend fun save(post: Post): Response<Post> = service.save(post)
     suspend fun update(id: Long, post: Post): Response<Post> = service.update(id, post)
     suspend fun removeById(id: Long): Response<Unit> = service.removeById(id)
@@ -39,6 +41,9 @@ object PostApi {
 interface PostApiService {
     @GET("/api/posts")
     suspend fun getAll(): Response<List<Post>>
+
+    @GET("/api/posts/newer/{id}")
+    suspend fun getNewer(@Path("id") id: Long): Response<List<Post>>
 
     @POST("/api/posts")
     suspend fun save(@Body post: Post): Response<Post>

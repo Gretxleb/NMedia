@@ -14,13 +14,34 @@ import java.io.IOException
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override val data: Flow<List<Post>> = dao.getAll().map { it.map(PostEntity::toDto) }
+    override val newerCount: Flow<Int> = dao.getNewerCount()
 
     override suspend fun getAll() {
         try {
             val response = PostApi.getAll()
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(body.map(PostEntity::fromDto))
+            dao.insert(body.map { PostEntity.fromDto(it, hidden = false) })
+        } catch (e: ApiError) {
+            throw e
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun showAll() {
+        dao.showAll()
+    }
+
+    override suspend fun getNewer() {
+        try {
+            val maxId = dao.getMaxId() ?: 0L
+            val response = PostApi.getNewer(maxId)
+            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(body.map { PostEntity.fromDto(it, hidden = true) })
         } catch (e: ApiError) {
             throw e
         } catch (e: IOException) {

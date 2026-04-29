@@ -46,10 +46,21 @@ class FeedFragment : Fragment() {
             binding.emptyText.isVisible = posts.isEmpty()
         }
 
+        viewModel.newerCount.observe(viewLifecycleOwner) { count ->
+            binding.newPostsBanner.isVisible = count > 0
+            binding.newPostsBanner.text = "Новые посты: $count"
+        }
+
         viewModel.state.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.swipeRefresh.isRefreshing = state.refreshing
             binding.errorGroup.isVisible = state.error
+        }
+
+        binding.newPostsBanner.setOnClickListener {
+            viewModel.showNewPosts()
+            binding.list.smoothScrollToPosition(0)
+            binding.newPostsBanner.isVisible = false
         }
 
         binding.retryButton.setOnClickListener {

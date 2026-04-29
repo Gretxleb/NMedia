@@ -6,6 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
@@ -31,6 +34,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     val data = repository.data.asLiveData()
+    val newerCount = repository.newerCount.asLiveData()
 
     private val _state = MutableLiveData(FeedModelState())
     val state: LiveData<FeedModelState> = _state
@@ -43,6 +47,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         loadPosts()
+        startPolling()
+    }
+
+    private fun startPolling() {
+        viewModelScope.launch {
+            while (true) {
+                delay(10_000L)
+                try {
+                    repository.getNewer()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 
     fun loadPosts() {
@@ -54,6 +72,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 _state.value = FeedModelState(error = true)
             }
+        }
+    }
+
+    fun showNewPosts() {
+        viewModelScope.launch {
+            repository.showAll()
         }
     }
 

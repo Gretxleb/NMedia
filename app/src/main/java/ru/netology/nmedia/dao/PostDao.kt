@@ -9,14 +9,23 @@ import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
-    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
+    @Query("SELECT * FROM PostEntity WHERE hidden = 0 ORDER BY id DESC")
     fun getAll(): Flow<List<PostEntity>>
+
+    @Query("SELECT COUNT(*) FROM PostEntity WHERE hidden = 1")
+    fun getNewerCount(): Flow<Int>
+
+    @Query("SELECT MAX(id) FROM PostEntity")
+    suspend fun getMaxId(): Long?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: PostEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(posts: List<PostEntity>)
+
+    @Query("UPDATE PostEntity SET hidden = 0")
+    suspend fun showAll()
 
     @Query("UPDATE PostEntity SET likes = likes + 1, likedByMe = 1 WHERE id = :id")
     suspend fun likeById(id: Long)
