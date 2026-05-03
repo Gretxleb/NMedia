@@ -1,6 +1,7 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -15,7 +16,8 @@ class PostsAdapter(
     private val onRemove: (Post) -> Unit,
     private val onEdit: (Post) -> Unit,
     private val onPostClick: (Post) -> Unit,
-    private val onVideoClick: (String) -> Unit
+    private val onVideoClick: (String) -> Unit,
+    private val onImageClick: (String) -> Unit
 ) : ListAdapter<Post, PostsAdapter.ViewHolder>(PostDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -40,6 +42,16 @@ class PostsAdapter(
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .transform(CircleCrop())
                 .into(binding.avatar)
+
+            if (post.attachment != null) {
+                binding.image.visibility = View.VISIBLE
+                Glide.with(binding.image)
+                    .load("http://10.0.2.2:9999/media/${post.attachment}")
+                    .into(binding.image)
+                binding.image.setOnClickListener { onImageClick(post.attachment) }
+            } else {
+                binding.image.visibility = View.GONE
+            }
 
             binding.root.setOnClickListener { onPostClick(post) }
             binding.like.setOnClickListener { onLike(post) }
