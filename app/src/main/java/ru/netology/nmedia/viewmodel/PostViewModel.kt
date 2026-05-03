@@ -98,4 +98,4 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _state.value = FeedModelState(error = true)
             }
         }
-    }
+    }}
