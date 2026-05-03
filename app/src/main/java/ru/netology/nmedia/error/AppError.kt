@@ -1,8 +1,6 @@
 package ru.netology.nmedia.error
 
-import java.io.IOException
-
 sealed class AppError(var code: String) : RuntimeException()
 class ApiError(val status: Int, code: String) : AppError(code)
-class NetworkError : AppError("error_network")
+object NetworkError : AppError("error_network")
 object UnknownError : AppError("error_unknown")
