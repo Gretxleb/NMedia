@@ -4,69 +4,45 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
-    private val viewModel: PostViewModel by viewModels()
-    private var binding: FragmentFeedBinding? = null
+
+    private lateinit var viewModel: PostViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val b = FragmentFeedBinding.inflate(inflater, container, false)
-        binding = b
-        return b.root
-    }
+        val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val binding = binding ?: return
+        viewModel = ViewModelProvider(requireActivity()).get(PostViewModel::class.java)
 
         val adapter = PostsAdapter(
             onLike = { viewModel.likeById(it.id) },
             onRemove = { viewModel.removeById(it.id) },
             onEdit = { viewModel.edit(it) },
-            onPostClick = {
+            onPostClick = {},
+            onVideoClick = {},
+            onImageClick = { url ->
+                val bundle = Bundle().apply {
+                    putString("url", url)
+                }
                 findNavController().navigate(
-                    R.id.action_feedFragment_to_postDetailsFragment,
-                    Bundle().apply { putLong("postId", it.id) }
+                    ru.netology.nmedia.R.id.action_feedFragment_to_imageFragment,
+                    bundle
                 )
-            },
-            onVideoClick = {}
+            }
         )
 
         binding.list.adapter = adapter
 
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            adapter.submitList(posts)
-            binding.emptyText.isVisible = posts.isEmpty()
+        viewModel.data.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
         }
 
-        viewModel.state.observe(viewLifecycleOwner) { state ->
-            binding.progress.isVisible = state.loading
-            binding.swipeRefresh.isRefreshing = state.refreshing
-            binding.errorGroup.isVisible = state.error
-        }
-
-        binding.retryButton.setOnClickListener {
-            viewModel.loadPosts()
-        }
-
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.loadPosts()
-        }
-
-        binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
-        }
-    }
-
-    override fun onDestroyView() {
-        binding = null
-        super.onDestroyView()
+        return binding.root
     }
 }
