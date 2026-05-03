@@ -1,7 +1,6 @@
 package ru.netology.nmedia.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,8 +28,8 @@ class PostDetailsFragment : Fragment() {
         val binding = FragmentPostDetailsBinding.inflate(inflater, container, false)
         val postId = arguments?.getLong("postId") ?: return binding.root
 
-        viewModel.data.observe(viewLifecycleOwner) { feed ->
-            val post = feed.posts.find { it.id == postId } ?: run {
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
+            val post = posts.find { it.id == postId } ?: run {
                 findNavController().navigateUp()
                 return@observe
             }
@@ -48,7 +47,6 @@ class PostDetailsFragment : Fragment() {
             like.isChecked = post.likedByMe
             like.text = post.likes.toString()
             share.text = post.shares.toString()
-
             videoGroup.visibility = View.GONE
 
             like.setOnClickListener {
