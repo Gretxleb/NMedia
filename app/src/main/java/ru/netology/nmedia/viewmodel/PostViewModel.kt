@@ -31,6 +31,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     val data = repository.data.asLiveData()
+    val newerCount = repository.newerCount.asLiveData()
 
     private val _state = MutableLiveData(FeedModelState())
     val state: LiveData<FeedModelState> = _state
@@ -51,6 +52,26 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.getAll()
                 _state.value = FeedModelState()
+            } catch (e: Exception) {
+                _state.value = FeedModelState(error = true)
+            }
+        }
+    }
+
+    fun loadNewer() {
+        viewModelScope.launch {
+            try {
+                repository.getNewer()
+            } catch (e: Exception) {
+                _state.value = FeedModelState(error = true)
+            }
+        }
+    }
+
+    fun showAll() {
+        viewModelScope.launch {
+            try {
+                repository.showAll()
             } catch (e: Exception) {
                 _state.value = FeedModelState(error = true)
             }
@@ -98,4 +119,5 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _state.value = FeedModelState(error = true)
             }
         }
-    }}
+    }
+}

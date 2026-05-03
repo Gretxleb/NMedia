@@ -14,7 +14,8 @@ data class PostEntity(
     val published: Long,
     val likedByMe: Boolean,
     val likes: Int = 0,
-    val shares: Int = 0
+    val shares: Int = 0,
+    val visible: Boolean = true
 ) {
     fun toDto() = Post(id, author, authorAvatar, content, published, likedByMe, likes, shares)
 
@@ -27,7 +28,8 @@ data class PostEntity(
             dto.published,
             dto.likedByMe,
             dto.likes,
-            dto.shares
+            dto.shares,
+            true
         )
     }
 }

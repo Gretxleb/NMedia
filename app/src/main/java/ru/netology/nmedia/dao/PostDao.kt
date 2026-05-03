@@ -9,8 +9,11 @@ import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
-    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
+    @Query("SELECT * FROM PostEntity WHERE visible = 1 ORDER BY id DESC")
     fun getAll(): Flow<List<PostEntity>>
+
+    @Query("SELECT COUNT(*) FROM PostEntity WHERE visible = 0 AND id > :id")
+    fun getNewerCount(id: Long): Flow<Int>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: PostEntity)
@@ -29,4 +32,7 @@ interface PostDao {
 
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     suspend fun getById(id: Long): PostEntity
+
+    @Query("UPDATE PostEntity SET visible = 1")
+    suspend fun makeAllVisible()
 }

@@ -14,6 +14,8 @@ import java.io.IOException
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override val data: Flow<List<Post>> = dao.getAll().map { it.map(PostEntity::toDto) }
+    
+    override val newerCount: Flow<Int> = dao.getNewerCount(0)
 
     override suspend fun getAll() {
         try {
@@ -21,6 +23,21 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.insert(body.map(PostEntity::fromDto))
+        } catch (e: ApiError) {
+            throw e
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun getNewer() {
+        try {
+            val response = PostApi.getNewer(1)
+            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(body.map { PostEntity.fromDto(it).copy(visible = false) })
         } catch (e: ApiError) {
             throw e
         } catch (e: IOException) {
@@ -83,5 +100,9 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             if (post.likedByMe) dao.likeById(id) else dao.unlikeById(id)
             throw UnknownError
         }
+    }
+
+    override suspend fun showAll() {
+        dao.makeAllVisible()
     }
 }
