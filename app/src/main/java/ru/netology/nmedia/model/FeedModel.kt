@@ -13,3 +13,10 @@ data class FeedModelState(
     val error: Boolean = false,
     val refreshing: Boolean = false
 )
+
+data class FeedState(
+    val loading: Boolean = false,
+    val error: Boolean = false,
+    val success: Boolean = false,
+    val refreshing: Boolean = false
+)

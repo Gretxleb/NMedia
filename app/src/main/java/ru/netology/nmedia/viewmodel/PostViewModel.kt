@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
@@ -33,8 +33,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val data = repository.data.asLiveData()
     val newerCount = repository.newerCount.asLiveData()
 
-    private val _state = MutableLiveData(FeedModelState())
-    val state: LiveData<FeedModelState> = _state
+    private val _state = MutableLiveData(FeedState())
+    val state: LiveData<FeedState> = _state
 
     private val _edited = MutableLiveData(empty)
     val edited: LiveData<Post> get() = _edited
@@ -48,12 +48,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPosts() {
         viewModelScope.launch {
-            _state.value = FeedModelState(loading = true)
+            _state.value = FeedState(loading = true)
             try {
                 repository.getAll()
-                _state.value = FeedModelState()
+                _state.value = FeedState()
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
@@ -63,7 +63,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.getNewer()
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
@@ -73,7 +73,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.showAll()
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
@@ -86,7 +86,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _postCreated.value = Unit
                 _edited.value = empty
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
@@ -106,7 +106,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.likeById(id)
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
@@ -116,7 +116,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.removeById(id)
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }

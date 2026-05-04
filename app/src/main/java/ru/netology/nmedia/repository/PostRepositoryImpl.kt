@@ -31,10 +31,6 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-    override suspend fun showAll() {
-        dao.showAll()
-    }
-
     override suspend fun getNewer() {
         try {
             val maxId = dao.getMaxId() ?: 0L
@@ -52,17 +48,37 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     }
 
     override suspend fun save(post: Post) {
-        try {
-            val response = if (post.id == 0L) PostApi.save(post) else PostApi.update(post.id, post)
-            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
-            val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(PostEntity.fromDto(body))
-        } catch (e: ApiError) {
-            throw e
-        } catch (e: IOException) {
-            throw NetworkError
-        } catch (e: Exception) {
-            throw UnknownError
+        if (post.id == 0L) {
+            try {
+                val response = PostApi.save(post)
+                if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+                val body = response.body() ?: throw ApiError(response.code(), response.message())
+                dao.insert(PostEntity.fromDto(body))
+            } catch (e: ApiError) {
+                throw e
+            } catch (e: IOException) {
+                throw NetworkError
+            } catch (e: Exception) {
+                throw UnknownError
+            }
+        } else {
+            val oldPost = dao.getById(post.id)?.toDto()
+            dao.insert(PostEntity.fromDto(post))
+            try {
+                val response = PostApi.update(post.id, post)
+                if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+                val body = response.body() ?: throw ApiError(response.code(), response.message())
+                dao.insert(PostEntity.fromDto(body))
+            } catch (e: ApiError) {
+                oldPost?.let { dao.insert(PostEntity.fromDto(it)) }
+                throw e
+            } catch (e: IOException) {
+                oldPost?.let { dao.insert(PostEntity.fromDto(it)) }
+                throw NetworkError
+            } catch (e: Exception) {
+                oldPost?.let { dao.insert(PostEntity.fromDto(it)) }
+                throw UnknownError
+            }
         }
     }
 
@@ -85,28 +101,29 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     }
 
     override suspend fun likeById(id: Long) {
-        val post = dao.getById(id)
-        if (post.likedByMe) {
+        val postEntity = dao.getById(id)
+        val wasLiked = postEntity.likedByMe
+        if (wasLiked) {
             dao.unlikeById(id)
         } else {
             dao.likeById(id)
         }
         try {
-            val response = if (post.likedByMe) PostApi.unlikeById(id) else PostApi.likeById(id)
+            val response = if (wasLiked) PostApi.unlikeById(id) else PostApi.likeById(id)
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
         } catch (e: ApiError) {
-            if (post.likedByMe) dao.likeById(id) else dao.unlikeById(id)
+            if (wasLiked) dao.likeById(id) else dao.unlikeById(id)
             throw e
         } catch (e: IOException) {
-            if (post.likedByMe) dao.likeById(id) else dao.unlikeById(id)
+            if (wasLiked) dao.likeById(id) else dao.unlikeById(id)
             throw NetworkError
         } catch (e: Exception) {
-            if (post.likedByMe) dao.likeById(id) else dao.unlikeById(id)
+            if (wasLiked) dao.likeById(id) else dao.unlikeById(id)
             throw UnknownError
         }
     }
 
     override suspend fun showAll() {
-        dao.makeAllVisible()
+        dao.showAll()
     }
 }
