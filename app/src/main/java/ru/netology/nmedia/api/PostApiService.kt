@@ -29,6 +29,7 @@ object PostApi {
     private val service = retrofit.create(PostApiService::class.java)
 
     suspend fun getAll(): Response<List<Post>> = service.getAll()
+    suspend fun getNewer(id: Long): Response<List<Post>> = service.getNewer(id)
     suspend fun save(post: Post): Response<Post> = service.save(post)
     suspend fun update(id: Long, post: Post): Response<Post> = service.update(id, post)
     suspend fun removeById(id: Long): Response<Unit> = service.removeById(id)
@@ -40,6 +41,9 @@ interface PostApiService {
     @GET("/api/posts")
     suspend fun getAll(): Response<List<Post>>
 
+    @GET("/api/posts/newer/{id}")
+    suspend fun getNewer(@Path("id") id: Long): Response<List<Post>>
+
     @POST("/api/posts")
     suspend fun save(@Body post: Post): Response<Post>
 
@@ -48,6 +52,13 @@ interface PostApiService {
 
     @DELETE("/api/posts/{id}")
     suspend fun removeById(@Path("id") id: Long): Response<Unit>
+
+    @POST("/api/posts/{id}/likes")
+    suspend fun likeById(@Path("id") id: Long): Response<Post>
+
+    @DELETE("/api/posts/{id}/likes")
+    suspend fun unlikeById(@Path("id") id: Long): Response<Post>
+}
 
     @POST("/api/posts/{id}/likes")
     suspend fun likeById(@Path("id") id: Long): Response<Post>
