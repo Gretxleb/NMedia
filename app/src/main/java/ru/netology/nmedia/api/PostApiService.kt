@@ -7,11 +7,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.Token
 
 object PostApi {
     private val retrofit = Retrofit.Builder()
@@ -35,6 +38,8 @@ object PostApi {
     suspend fun removeById(id: Long): Response<Unit> = service.removeById(id)
     suspend fun likeById(id: Long): Response<Post> = service.likeById(id)
     suspend fun unlikeById(id: Long): Response<Post> = service.unlikeById(id)
+    suspend fun updateUser(login: String, pass: String): Response<Token> = service.updateUser(login, pass)
+    suspend fun registerUser(login: String, pass: String, name: String): Response<Token> = service.registerUser(login, pass, name)
 }
 
 interface PostApiService {
@@ -58,4 +63,12 @@ interface PostApiService {
 
     @DELETE("/api/posts/{id}/likes")
     suspend fun unlikeById(@Path("id") id: Long): Response<Post>
+
+    @FormUrlEncoded
+    @POST("/api/users/authentication")
+    suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): Response<Token>
+
+    @FormUrlEncoded
+    @POST("/api/users/registration")
+    suspend fun registerUser(@Field("login") login: String, @Field("pass") pass: String, @Field("name") name: String): Response<Token>
 }

@@ -12,6 +12,7 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.util.SingleLiveEvent
 
 private val empty = Post(
@@ -41,6 +42,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit> get() = _postCreated
+
+    private val _signInRequired = SingleLiveEvent<Unit>()
+    val signInRequired: LiveData<Unit> get() = _signInRequired
 
     init {
         loadPosts()
@@ -79,6 +83,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun save() {
+        if (AppAuth.getInstance().authState.value == null) {
+            _signInRequired.value = Unit
+            return
+        }
         val post = _edited.value ?: return
         viewModelScope.launch {
             try {
@@ -102,6 +110,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
+        if (AppAuth.getInstance().authState.value == null) {
+            _signInRequired.value = Unit
+            return
+        }
         viewModelScope.launch {
             try {
                 repository.likeById(id)
@@ -119,5 +131,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _state.value = FeedState(error = true)
             }
         }
+    }
+
+    fun isAuthenticated(): Boolean {
+        return AppAuth.getInstance().authState.value != null
     }
 }
