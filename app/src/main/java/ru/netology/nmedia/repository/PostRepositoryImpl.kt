@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.map
 import ru.netology.nmedia.api.PostApi
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
@@ -89,13 +90,13 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             val response = PostApi.removeById(id)
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
         } catch (e: ApiError) {
-            dao.insert(post)
+            post?.let { dao.insert(it) }
             throw e
         } catch (e: IOException) {
-            dao.insert(post)
+            post?.let { dao.insert(it) }
             throw NetworkError
         } catch (e: Exception) {
-            dao.insert(post)
+            post?.let { dao.insert(it) }
             throw UnknownError
         }
     }
@@ -119,6 +120,19 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             throw NetworkError
         } catch (e: Exception) {
             if (wasLiked) dao.likeById(id) else dao.unlikeById(id)
+            throw UnknownError
+        }
+    }
+
+    override suspend fun sendPushToken(pushToken: PushToken) {
+        try {
+            val response = PostApi.sendPushToken(pushToken)
+            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+        } catch (e: ApiError) {
+            throw e
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
             throw UnknownError
         }
     }

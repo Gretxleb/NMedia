@@ -13,6 +13,8 @@ class AppAuth private constructor(context: Context) {
     private val gson = Gson()
     private val _authState = MutableLiveData<Token?>()
     val authState: LiveData<Token?> = _authState
+    val authId: Long?
+        get() = _authState.value?.id
 
     init {
         val tokenJson = prefs.getString(TOKEN_KEY, null)

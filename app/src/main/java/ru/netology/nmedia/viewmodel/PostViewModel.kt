@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
@@ -130,6 +131,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 repository.removeById(id)
             } catch (e: Exception) {
                 _state.value = FeedState(error = true)
+            }
+        }
+    }
+
+    fun sendPushToken(pushToken: PushToken) {
+        viewModelScope.launch {
+            try {
+                repository.sendPushToken(pushToken)
+            } catch (_: Exception) {
             }
         }
     }

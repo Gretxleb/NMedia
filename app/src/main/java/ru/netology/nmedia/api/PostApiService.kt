@@ -15,6 +15,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.dto.Token
 
 private const val BASE_URL = "http://10.0.2.2:9999"
@@ -51,6 +52,7 @@ object PostApi {
     suspend fun unlikeById(id: Long): Response<Post> = service.unlikeById(id)
     suspend fun updateUser(login: String, pass: String): Response<Token> = service.updateUser(login, pass)
     suspend fun registerUser(login: String, pass: String, name: String): Response<Token> = service.registerUser(login, pass, name)
+    suspend fun sendPushToken(pushToken: PushToken): Response<Unit> = service.sendPushToken(pushToken)
 }
 
 interface PostApiService {
@@ -89,4 +91,7 @@ interface PostApiService {
         @Field("pass") pass: String,
         @Field("name") name: String
     ): Response<Token>
+
+    @POST("/api/pushes")
+    suspend fun sendPushToken(@Body pushToken: PushToken): Response<Unit>
 }
