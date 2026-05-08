@@ -13,6 +13,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.Token
 
@@ -22,6 +23,14 @@ private val okhttp = OkHttpClient.Builder()
     .addInterceptor(HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     })
+    .addInterceptor { chain ->
+        val request = AppAuth.getInstance().authState.value?.token?.let { token ->
+            chain.request().newBuilder()
+                .addHeader("Authorization", token)
+                .build()
+        } ?: chain.request()
+        chain.proceed(request)
+    }
     .build()
 
 private val retrofit = Retrofit.Builder()
