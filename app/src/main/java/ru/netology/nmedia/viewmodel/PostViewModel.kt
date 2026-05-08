@@ -6,13 +6,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
-import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.util.SingleLiveEvent
 
 private val empty = Post(
@@ -48,6 +49,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         loadPosts()
+        startPolling()
+    }
+
+    private fun startPolling() {
+        viewModelScope.launch {
+            while (true) {
+                delay(10_000L)
+                try {
+                    repository.getNewer()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 
     fun loadPosts() {
@@ -62,23 +77,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun loadNewer() {
+    fun showNewPosts() {
         viewModelScope.launch {
-            try {
-                repository.getNewer()
-            } catch (e: Exception) {
-                _state.value = FeedState(error = true)
-            }
-        }
-    }
-
-    fun showAll() {
-        viewModelScope.launch {
-            try {
-                repository.showAll()
-            } catch (e: Exception) {
-                _state.value = FeedState(error = true)
-            }
+            repository.showAll()
         }
     }
 
