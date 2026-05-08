@@ -1,5 +1,5 @@
+package ru.netology.nmedia.activity
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,8 +36,7 @@ class FeedFragment : Fragment() {
                     Bundle().apply { putLong("postId", it.id) }
                 )
             },
-            onVideoClick = {},
-            onImageClick = {}
+            onVideoClick = {}
         )
 
         binding.list.adapter = adapter
@@ -61,30 +60,8 @@ class FeedFragment : Fragment() {
             viewModel.loadPosts()
         }
 
-        viewModel.signInRequired.observe(viewLifecycleOwner) {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Sign In Required")
-                .setMessage("You need to sign in to perform this action.")
-                .setPositiveButton("Sign In") { _, _ ->
-                    findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        }
-
         binding.fab.setOnClickListener {
-            if (viewModel.isAuthenticated()) {
-                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
-            } else {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Sign In Required")
-                    .setMessage("You need to sign in to create a post.")
-                    .setPositiveButton("Sign In") { _, _ ->
-                        findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            }
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
     }
 
