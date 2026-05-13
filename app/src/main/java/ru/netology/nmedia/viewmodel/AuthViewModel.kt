@@ -10,11 +10,11 @@ import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.model.AuthModelState
 
 class AuthViewModel : ViewModel() {
-    private val _data = MutableLiveData<AuthModelState>()
-    val data: LiveData<AuthModelState>
-        get() = _data
+    private val _data = MutableLiveData(AuthModelState())
+    val data: LiveData<AuthModelState> = _data
 
     fun login(login: String, pass: String) = viewModelScope.launch {
+        _data.value = AuthModelState(loading = true)
         try {
             val response = PostApi.updateUser(login, pass)
             if (!response.isSuccessful) {
@@ -30,6 +30,7 @@ class AuthViewModel : ViewModel() {
     }
 
     fun register(login: String, pass: String, name: String) = viewModelScope.launch {
+        _data.value = AuthModelState(loading = true)
         try {
             val response = PostApi.registerUser(login, pass, name)
             if (!response.isSuccessful) {
