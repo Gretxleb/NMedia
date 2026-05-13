@@ -7,12 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
@@ -36,14 +35,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val data = repository.data.asLiveData()
     val newerCount = repository.newerCount.asLiveData()
 
-    private val _state = MutableLiveData(FeedModelState())
-    val state: LiveData<FeedModelState> = _state
+    private val _state = MutableLiveData(FeedState())
+    val state: LiveData<FeedState> = _state
 
     private val _edited = MutableLiveData(empty)
     val edited: LiveData<Post> get() = _edited
 
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit> get() = _postCreated
+
+    private val _signInRequired = SingleLiveEvent<Unit>()
+    val signInRequired: LiveData<Unit> get() = _signInRequired
 
     init {
         loadPosts()
@@ -65,12 +67,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPosts() {
         viewModelScope.launch {
-            _state.value = FeedModelState(loading = true)
+            _state.value = FeedState(loading = true)
             try {
                 repository.getAll()
-                _state.value = FeedModelState()
+                _state.value = FeedState()
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
@@ -82,6 +84,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun save() {
+        if (AppAuth.getInstance().authState.value == null) {
+            _signInRequired.value = Unit
+            return
+        }
         val post = _edited.value ?: return
         viewModelScope.launch {
             try {
@@ -89,7 +95,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _postCreated.value = Unit
                 _edited.value = empty
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
@@ -105,11 +111,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
+        if (AppAuth.getInstance().authState.value == null) {
+            _signInRequired.value = Unit
+            return
+        }
         viewModelScope.launch {
             try {
                 repository.likeById(id)
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
@@ -119,9 +129,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.removeById(id)
             } catch (e: Exception) {
-                _state.value = FeedModelState(error = true)
+                _state.value = FeedState(error = true)
             }
         }
     }
-}
+
+    fun isAuthenticated(): Boolean {
+        return AppAuth.getInstance().authState.value != null
+    }
 }

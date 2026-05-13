@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.PostEntity
 
-@Database(entities = [PostEntity::class], version = 1)
+@Database(entities = [PostEntity::class], version = 2, exportSchema = false)
 abstract class AppDb : RoomDatabase() {
     abstract fun postDao(): PostDao
 
@@ -15,13 +17,21 @@ abstract class AppDb : RoomDatabase() {
         @Volatile
         private var instance: AppDb? = null
 
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE PostEntity ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getInstance(context: Context): AppDb {
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDb::class.java,
                     "app.db"
-                ).build().also { instance = it }
+                )
+                    .addMigrations(MIGRATION_1_2)
+                    .build().also { instance = it }
             }
         }
     }

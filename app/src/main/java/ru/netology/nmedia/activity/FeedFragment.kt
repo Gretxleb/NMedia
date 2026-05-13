@@ -53,7 +53,7 @@ class FeedFragment : Fragment() {
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
-            binding.swipeRefresh.isRefreshing = state.refreshing
+            binding.swipeRefresh.isRefreshing = state.loading
             binding.errorGroup.isVisible = state.error
         }
 

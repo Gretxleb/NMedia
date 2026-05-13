@@ -55,6 +55,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="Post content" />
 
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
     <androidx.constraintlayout.widget.Group
         android:id="@+id/videoGroup"
         android:layout_width="wrap_content"
@@ -69,7 +81,7 @@
         android:layout_marginTop="8dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_launcher_background"
-        app:layout_constraintTop_toBottomOf="@id/content" />
+        app:layout_constraintTop_toBottomOf="@id/image" />
 
     <ImageView
         android:id="@+id/playVideo"
