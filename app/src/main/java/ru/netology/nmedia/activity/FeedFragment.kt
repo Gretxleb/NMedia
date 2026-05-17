@@ -72,15 +72,7 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            if (viewModel.isAuthenticated()) {
-                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
-            } else {
-                findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
-            }
-        }
-
-        viewModel.signInRequired.observe(viewLifecycleOwner) {
-            findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
     }
 
