@@ -1,4 +1,4 @@
-package ru.netology.nmedia.activity
+﻿package ru.netology.nmedia.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -48,13 +48,17 @@ class FeedFragment : Fragment() {
 
         viewModel.newerCount.observe(viewLifecycleOwner) { count ->
             binding.newPostsBanner.isVisible = count > 0
-            binding.newPostsBanner.text = "Новые посты: $count"
+            binding.newPostsBanner.text = "ÐÐ¾Ð²Ñ‹Ðµ Ð¿Ð¾ÑÑ‚Ñ‹: $count"
         }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.swipeRefresh.isRefreshing = state.loading
             binding.errorGroup.isVisible = state.error
+        }
+
+        viewModel.signInRequired.observe(viewLifecycleOwner) {
+            findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
         }
 
         binding.newPostsBanner.setOnClickListener {
@@ -72,7 +76,11 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if (viewModel.isAuthenticated()) {
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            } else {
+                findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+            }
         }
     }
 
