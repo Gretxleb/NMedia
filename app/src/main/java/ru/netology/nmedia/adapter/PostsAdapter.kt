@@ -41,6 +41,17 @@ class PostsAdapter(
                 .transform(CircleCrop())
                 .into(binding.avatar)
 
+            // Load post attachment image if available
+            if (post.attachment != null) {
+                binding.image.visibility = android.view.View.VISIBLE
+                Glide.with(binding.image)
+                    .load("http://10.0.2.2:9999/media/${post.attachment.url}")
+                    .placeholder(android.R.drawable.ic_menu_gallery)
+                    .into(binding.image)
+            } else {
+                binding.image.visibility = android.view.View.GONE
+            }
+
             binding.root.setOnClickListener { onPostClick(post) }
             binding.like.setOnClickListener { onLike(post) }
             binding.menu.setOnClickListener { onRemove(post) }
