@@ -1,20 +1,19 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import javax.inject.Inject
 
 private val empty = Post(
     id = 0,
@@ -27,10 +26,11 @@ private val empty = Post(
     shares = 0
 )
 
-class PostViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: PostRepository = PostRepositoryImpl(
-        AppDb.getInstance(application).postDao()
-    )
+@HiltViewModel
+class PostViewModel @Inject constructor(
+    private val repository: PostRepository,
+    private val appAuth: AppAuth
+) : ViewModel() {
 
     val data = repository.data.asLiveData()
     val newerCount = repository.newerCount.asLiveData()
@@ -84,7 +84,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun save() {
-        if (AppAuth.getInstance().authState.value == null) {
+        if (appAuth.authState.value == null) {
             _signInRequired.value = Unit
             return
         }
@@ -111,7 +111,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
-        if (AppAuth.getInstance().authState.value == null) {
+        if (appAuth.authState.value == null) {
             _signInRequired.value = Unit
             return
         }
@@ -135,6 +135,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun isAuthenticated(): Boolean {
-        return AppAuth.getInstance().authState.value != null
+        return appAuth.authState.value != null
     }
 }

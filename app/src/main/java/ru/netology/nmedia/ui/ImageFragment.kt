@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.databinding.FragmentImageBinding
 
+@AndroidEntryPoint
 class ImageFragment : Fragment() {
 
     override fun onCreateView(

@@ -51,8 +51,10 @@ class AppAuth private constructor(context: Context) {
             instance ?: throw IllegalStateException("AppAuth is not initialized")
         }
 
-        fun initAppAuth(context: Context): AppAuth = instance ?: synchronized(this) {
+        fun getInstance(context: Context): AppAuth = instance ?: synchronized(this) {
             instance ?: AppAuth(context).also { instance = it }
         }
+
+        fun initAppAuth(context: Context): AppAuth = getInstance(context)
     }
 }

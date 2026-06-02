@@ -2,7 +2,7 @@ package ru.netology.nmedia.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.api.PostApiService
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
@@ -11,14 +11,17 @@ import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
 
-class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
+class PostRepositoryImpl(
+    private val dao: PostDao,
+    private val service: PostApiService
+) : PostRepository {
 
     override val data: Flow<List<Post>> = dao.getAll().map { list -> list.map(PostEntity::toDto) }
     override val newerCount: Flow<Int> = dao.getNewerCount()
 
     override suspend fun getAll() {
         try {
-            val response = PostApi.getAll()
+            val response = service.getAll()
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.insert(body.map { PostEntity.fromDto(it) })
@@ -34,7 +37,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override suspend fun getNewer() {
         try {
             val maxId = dao.getMaxId() ?: 0L
-            val response = PostApi.getNewer(maxId)
+            val response = service.getNewer(maxId)
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.insert(body.map { PostEntity.fromDto(it, hidden = true) })
@@ -50,7 +53,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override suspend fun save(post: Post) {
         if (post.id == 0L) {
             try {
-                val response = PostApi.save(post)
+                val response = service.save(post)
                 if (!response.isSuccessful) throw ApiError(response.code(), response.message())
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 dao.insert(PostEntity.fromDto(body))
@@ -65,7 +68,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             val oldPost = dao.getById(post.id)?.toDto()
             dao.insert(PostEntity.fromDto(post))
             try {
-                val response = PostApi.update(post.id, post)
+                val response = service.update(post.id, post)
                 if (!response.isSuccessful) throw ApiError(response.code(), response.message())
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
                 dao.insert(PostEntity.fromDto(body))
@@ -86,7 +89,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         val post = dao.getById(id)
         dao.removeById(id)
         try {
-            val response = PostApi.removeById(id)
+            val response = service.removeById(id)
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
         } catch (e: ApiError) {
             dao.insert(post)
@@ -109,7 +112,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             dao.likeById(id)
         }
         try {
-            val response = if (wasLiked) PostApi.unlikeById(id) else PostApi.likeById(id)
+            val response = if (wasLiked) service.unlikeById(id) else service.likeById(id)
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
         } catch (e: ApiError) {
             if (wasLiked) dao.likeById(id) else dao.unlikeById(id)
