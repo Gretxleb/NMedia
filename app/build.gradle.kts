@@ -59,6 +59,8 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:2.7.1")
     kapt("androidx.room:room-compiler:2.7.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-compiler:2.51.1")
 }
+
