@@ -58,12 +58,6 @@ dependencies {
     implementation("androidx.room:room-ktx:2.7.1")
     kapt("androidx.room:room-compiler:2.7.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
-}
-
-configurations.all {
-    resolutionStrategy {
-        force("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0")
-    }
+    implementation("com.google.dagger:hilt-android:2.52.1")
+    kapt("com.google.dagger:hilt-compiler:2.52.1")
 }
