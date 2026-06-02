@@ -6,14 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.api.PostApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.model.AuthModelState
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val appAuth: AppAuth
+    private val appAuth: AppAuth,
+    private val apiService: PostApiService
 ) : ViewModel() {
     private val _data = MutableLiveData(AuthModelState())
     val data: LiveData<AuthModelState> = _data
@@ -21,7 +22,7 @@ class AuthViewModel @Inject constructor(
     fun login(login: String, pass: String) = viewModelScope.launch {
         _data.value = AuthModelState(loading = true)
         try {
-            val response = PostApi.updateUser(login, pass)
+            val response = apiService.updateUser(login, pass)
             if (!response.isSuccessful) {
                 _data.value = AuthModelState(error = true)
                 return@launch
@@ -37,7 +38,7 @@ class AuthViewModel @Inject constructor(
     fun register(login: String, pass: String, name: String) = viewModelScope.launch {
         _data.value = AuthModelState(loading = true)
         try {
-            val response = PostApi.registerUser(login, pass, name)
+            val response = apiService.registerUser(login, pass, name)
             if (!response.isSuccessful) {
                 _data.value = AuthModelState(error = true)
                 return@launch
