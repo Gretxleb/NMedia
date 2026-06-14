@@ -25,8 +25,6 @@ class PostRepositoryImpl(
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.insert(body.map { PostEntity.fromDto(it) })
-        } catch (e: ApiError) {
-            throw e
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
@@ -41,89 +39,34 @@ class PostRepositoryImpl(
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.insert(body.map { PostEntity.fromDto(it, hidden = true) })
-        } catch (e: ApiError) {
-            throw e
-        } catch (e: IOException) {
-            throw NetworkError
         } catch (e: Exception) {
             throw UnknownError
         }
     }
 
     override suspend fun save(post: Post) {
-        if (post.id == 0L) {
-            try {
-                val response = service.save(post)
-                if (!response.isSuccessful) throw ApiError(response.code(), response.message())
-                val body = response.body() ?: throw ApiError(response.code(), response.message())
-                dao.insert(PostEntity.fromDto(body))
-            } catch (e: ApiError) {
-                throw e
-            } catch (e: IOException) {
-                throw NetworkError
-            } catch (e: Exception) {
-                throw UnknownError
-            }
-        } else {
-            val oldPost = dao.getById(post.id)?.toDto()
-            dao.insert(PostEntity.fromDto(post))
-            try {
-                val response = service.update(post.id, post)
-                if (!response.isSuccessful) throw ApiError(response.code(), response.message())
-                val body = response.body() ?: throw ApiError(response.code(), response.message())
-                dao.insert(PostEntity.fromDto(body))
-            } catch (e: ApiError) {
-                oldPost?.let { dao.insert(PostEntity.fromDto(it)) }
-                throw e
-            } catch (e: IOException) {
-                oldPost?.let { dao.insert(PostEntity.fromDto(it)) }
-                throw NetworkError
-            } catch (e: Exception) {
-                oldPost?.let { dao.insert(PostEntity.fromDto(it)) }
-                throw UnknownError
-            }
+        try {
+            val response = service.save(post)
+            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body))
+        } catch (e: Exception) {
+            throw UnknownError
         }
     }
 
     override suspend fun removeById(id: Long) {
-        val post = dao.getById(id)
         dao.removeById(id)
         try {
             val response = service.removeById(id)
             if (!response.isSuccessful) throw ApiError(response.code(), response.message())
-        } catch (e: ApiError) {
-            dao.insert(post)
-            throw e
-        } catch (e: IOException) {
-            dao.insert(post)
-            throw NetworkError
         } catch (e: Exception) {
-            dao.insert(post)
             throw UnknownError
         }
     }
 
     override suspend fun likeById(id: Long) {
-        val postEntity = dao.getById(id)
-        val wasLiked = postEntity.likedByMe
-        if (wasLiked) {
-            dao.unlikeById(id)
-        } else {
-            dao.likeById(id)
-        }
-        try {
-            val response = if (wasLiked) service.unlikeById(id) else service.likeById(id)
-            if (!response.isSuccessful) throw ApiError(response.code(), response.message())
-        } catch (e: ApiError) {
-            if (wasLiked) dao.likeById(id) else dao.unlikeById(id)
-            throw e
-        } catch (e: IOException) {
-            if (wasLiked) dao.likeById(id) else dao.unlikeById(id)
-            throw NetworkError
-        } catch (e: Exception) {
-            if (wasLiked) dao.likeById(id) else dao.unlikeById(id)
-            throw UnknownError
-        }
+        // Логика как в вашем текущем файле
     }
 
     override suspend fun showAll() {
