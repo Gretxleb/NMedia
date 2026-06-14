@@ -48,9 +48,14 @@ class PostViewModel @Inject constructor(
     val signInRequired: LiveData<Unit> get() = _signInRequired
 
     init {
+    loadPosts()
+
+    appAuth.authState.observeForever {
         loadPosts()
-        startPolling()
     }
+
+    startPolling()
+}
 
     private fun startPolling() {
         viewModelScope.launch {
