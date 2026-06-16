@@ -60,4 +60,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("com.google.dagger:hilt-android:2.57")
 kapt("com.google.dagger:hilt-compiler:2.57")
+implementation("androidx.paging:paging-runtime-ktx:3.3.6")
+implementation("androidx.room:room-paging:2.7.1")
 }
