@@ -60,4 +60,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("com.google.dagger:hilt-android:2.57")
 kapt("com.google.dagger:hilt-compiler:2.57")
+val paging_version = "3.3.0"
+    implementation("androidx.paging:paging-runtime-ktx:$paging_version")
+implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.0")
 }
