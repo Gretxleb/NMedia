@@ -4,6 +4,9 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     id("org.jetbrains.kotlin.kapt")
     id("com.google.dagger.hilt.android")
+id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 android {
