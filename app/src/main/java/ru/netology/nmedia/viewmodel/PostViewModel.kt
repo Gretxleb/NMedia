@@ -1,4 +1,4 @@
-﻿package ru.netology.nmedia.viewmodel
+package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -50,6 +50,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     init {
         loadPosts()
         startPolling()
+        observeAuth()
+    }
+
+    private fun observeAuth() {
+        viewModelScope.launch {
+            AppAuth.getInstance().authState.collect {
+                loadPosts()
+            }
+        }
     }
 
     private fun startPolling() {
